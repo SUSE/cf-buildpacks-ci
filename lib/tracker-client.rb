@@ -55,7 +55,7 @@ class TrackerClient
       request.body = {
         description: "##{blocker.id} - #{blocker.name}",
         person_id: @requester_id,
-        resolved: (blocker.state == 'accepted')
+        resolved: (blocker.current_state == 'accepted')
       }.to_json
       request
     end
