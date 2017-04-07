@@ -11,10 +11,7 @@ inputs:
   - name: buildpack
 
 run:
-  path: bash
-  args:
-    - -cl
-    - buildpacks-ci/tasks/create-buildpack-release-tracker-story/run.rb
+  path: /bin/true
 
 params:
   BUILDPACK_NAME:
