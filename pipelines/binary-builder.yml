@@ -101,7 +101,7 @@ resources: #####################################################################
   - name: docker-cflinuxfs2-rootfs
     type: docker-image
     source:
-      repository: cloudfoundry/cflinuxfs2
+      repository: jandubois/opensusefs2
       username: {{buildpacks-docker-username}}
       password: {{buildpacks-docker-password}}
       email: cf-buildpacks-eng@pivotal.io
