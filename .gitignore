@@ -10,3 +10,6 @@ deployments/concourse-gcp/cloud.yml
 deployments/concourse-gcp-terraform/concourse.tf
 deployments/concourse-gcp-terraform/terraform.tfstate
 deployments/concourse-gcp-terraform/terraform.tfstate.backup
+/keyrings/live/pubring.gpg~
+/keyrings/live/pubring.kbx~
+/keyrings/live/secring.gpg
