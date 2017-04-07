@@ -1,6 +1,6 @@
 # encoding: utf-8
 require 'tracker_api'
-require './tracker-client'
+require 'tracker-client'
 
 class BuildpackReleaseStoryCreator
   attr_reader :buildpack_name, :previous_buildpack_version,
