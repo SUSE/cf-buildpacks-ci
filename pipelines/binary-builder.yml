@@ -31,7 +31,7 @@ resources: #####################################################################
       paths: [ binary-builds/* ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
 
-<% dep_build_names = %w(bower go bundler composer dotnet glide godep httpd hwc jruby php php7 python node nginx ruby yarn) %>
+<% dep_build_names = %w(bower go bundler composer glide godep httpd hwc jruby php php7 python node nginx ruby yarn) %>
 <% dep_build_names.each do |dep| %>
   - name: <%= dep %>-builds
     type: git
@@ -42,7 +42,7 @@ resources: #####################################################################
       private_key: {{public-buildpacks-ci-robots-private-key}}
 <% end %>
 
-<% dep_built_output_names = dep_build_names + %w(dotnet-framework) %>
+<% dep_built_output_names = dep_build_names %>
 <% dep_built_output_names.each do |dep| %>
   - name: <%= dep %>-built-output
     type: git
@@ -53,7 +53,7 @@ resources: #####################################################################
       private_key: {{public-buildpacks-ci-robots-private-key}}
 <% end %>
 
-<% %w(bower composer dotnet glide godep hwc nginx node yarn).each do |auto_dep| %>
+<% %w(bower composer glide godep hwc nginx node yarn).each do |auto_dep| %>
   - name: <%= auto_dep %>-builds-in
     type: git
     source:
@@ -71,7 +71,7 @@ resources: #####################################################################
       private_key: {{public-buildpacks-ci-robots-private-key}}
 <% end %>
 
-<% %w(go dotnet-core hwc nodejs ruby php staticfile).each do |language| %>
+<% %w(go hwc nodejs ruby php staticfile).each do |language| %>
   - name: <%= language %>-buildpack
     type: git
     source:
@@ -106,7 +106,7 @@ resources: #####################################################################
       password: {{buildpacks-docker-password}}
       email: cf-buildpacks-eng@pivotal.io
 
-<% dep_build_names = %w(bower go bundler composer dotnet glide godep httpd hwc jruby php php7 python node nginx ruby yarn) %>
+<% dep_build_names = %w(bower go bundler composer glide godep httpd hwc jruby php php7 python node nginx ruby yarn) %>
 <% dep_build_names.each do |dep| %>
   - name: buildpacks-bucket-<%= dep %>
     type: s3
@@ -122,21 +122,20 @@ groups: ########################################################################
 
   - name: enqueue-automated-builds
     jobs:
-<% %w(bower composer dotnet glide godep hwc nginx node yarn).each do |auto_dep| %>
+<% %w(bower composer glide godep hwc nginx node yarn).each do |auto_dep| %>
     - trigger-<%= auto_dep %>-build
 <% end %>
 
   - name: automated-builds
     jobs:
     - binary-builder-specs
-<% %w(bower composer dotnet glide godep hwc nginx node yarn).each do |auto_dep| %>
+<% %w(bower composer glide godep hwc nginx node yarn).each do |auto_dep| %>
     - build-<%= auto_dep %>
 <% end %>
-<% {go: ["godep", "glide"], hwc: ["hwc"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"], ruby: ["node","yarn"], 'dotnet-core' => ['dotnet', 'node', 'bower', 'dotnet-framework'] }.each do |buildpack, dependencies| %>
+<% {go: ["godep", "glide"], hwc: ["hwc"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"], ruby: ["node","yarn"]}.each do |buildpack, dependencies| %>
   <% dependencies.each do |dependency| %>
     - update-<%= dependency %>-in-<%= buildpack %>-buildpack
   <% end %>
-    - extract-dotnet-framework
 <% end %>
 
   - name: manual-builds
@@ -159,7 +158,7 @@ jobs: ##########################################################################
         - get: binary-builder
           trigger: true
       - do:
-        <% integration_spec_names = %w(bundler glide go godep httpd hwc jruby nginx nodejs php5 php7 php71 php5_with_oracle php7_with_oracle php5_with_geolitedb php7_with_geolitedb python ruby url_output yaml_flag dotnet) %>
+        <% integration_spec_names = %w(bundler glide go godep httpd hwc jruby nginx nodejs php5 php7 php71 php5_with_oracle php7_with_oracle php5_with_geolitedb php7_with_geolitedb python ruby url_output yaml_flag) %>
         - task: all-expected-integration-specs-will-run
           file: buildpacks-ci/tasks/check-for-binary-builder-integration-spec-presence/task.yml
           params:
@@ -241,7 +240,7 @@ jobs: ##########################################################################
             icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 <% end %>
 
-<% %w(bower godep hwc dotnet composer glide nginx node yarn).each do |dependency| %>
+<% %w(bower godep hwc composer glide nginx node yarn).each do |dependency| %>
   - name: trigger-<%= dependency %>-build
     serial: true
     public: true
@@ -309,7 +308,7 @@ jobs: ##########################################################################
             icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 <% end %>
 
-<% {go: ["godep", "glide"], hwc: ["hwc"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"], ruby: ["node","yarn"], 'dotnet-core' => ['dotnet', 'node', 'bower', 'dotnet-framework']}.each do |buildpack, dependencies| %>
+<% {go: ["godep", "glide"], hwc: ["hwc"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"], ruby: ["node","yarn"]}.each do |buildpack, dependencies| %>
   <% dependencies.each do |dependency| %>
   - name: update-<%= dependency %>-in-<%= buildpack %>-buildpack
     serial: true
@@ -322,11 +321,7 @@ jobs: ##########################################################################
             resource: <%= buildpack %>-buildpack
           - get: built-out
             resource: <%= dependency %>-built-output
-          <% if dependency != 'dotnet-framework' %>
             passed: [ build-<%= dependency %> ]
-          <% else %>
-            passed: [ extract-dotnet-framework ]
-          <% end %>
             version: every
             trigger: true
         - task: update-dependency-in-manifests
@@ -345,31 +340,3 @@ jobs: ##########################################################################
             rebase: true
   <% end %>
 <% end %>
-
-  - name: extract-dotnet-framework
-    serial: true
-    public: true
-    plan:
-      - aggregate:
-        - get: buildpacks-ci
-        - get: built-yaml
-          passed: [ build-dotnet ]
-          resource: dotnet-built-output
-          trigger: true
-        - get: dotnet-framework-built
-          resource: dotnet-framework-built-output
-      - do:
-        - task: extract-dotnet-framework
-          file: buildpacks-ci/tasks/extract-dotnet-framework/task.yml
-        - task: push-binary
-          file: buildpacks-ci/tasks/push-binary/task.yml
-          params:
-            DEPENDENCY: dotnet-framework
-            BUCKET_NAME: {{buildpacks-binaries-s3-bucket}}
-            AWS_ACCESS_KEY_ID: {{pivotal-buildpacks-s3-access-key}}
-            AWS_SECRET_ACCESS_KEY: {{pivotal-buildpacks-s3-secret-key}}
-            AWS_DEFAULT_REGION: us-east-1
-        - put: dotnet-framework-built-output
-          params:
-            repository: dotnet-framework-built-output
-            rebase: true
