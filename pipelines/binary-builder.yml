@@ -26,7 +26,7 @@ resources: #####################################################################
   - name: builds-out
     type: git
     source:
-      uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
       branch: master
       paths: [ binary-builds/* ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
@@ -36,7 +36,7 @@ resources: #####################################################################
   - name: <%= dep %>-builds
     type: git
     source:
-      uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
       branch: master
       paths: [ binary-builds/<%= dep %>-builds.yml ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
@@ -47,7 +47,7 @@ resources: #####################################################################
   - name: <%= dep %>-built-output
     type: git
     source:
-      uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
       branch: master
       paths: [ binary-built-output/<%= dep %>-built.yml ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
@@ -57,7 +57,7 @@ resources: #####################################################################
   - name: <%= auto_dep %>-builds-in
     type: git
     source:
-      uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
       branch: master
       paths: [ binary-builds/<%= auto_dep %>-builds.yml ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
@@ -65,7 +65,7 @@ resources: #####################################################################
   - name: <%= auto_dep %>-new-releases
     type: git
     source:
-      uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
       branch: master
       paths: [ new-release-notifications/<%= auto_dep %>-new.yml ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
