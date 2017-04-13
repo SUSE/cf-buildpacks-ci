@@ -202,7 +202,7 @@ resources: #####################################################################
       branch: master
       pool: edge-shared-environments
       private_key: {{public-buildpacks-ci-robots-private-key}}
-      uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
 
 <% unless language == 'hwc' %>
   - name: cf-lts-gcp-environments
@@ -211,7 +211,7 @@ resources: #####################################################################
       branch: master
       pool: cf-lts-gcp-environments
       private_key: {{public-buildpacks-ci-robots-private-key}}
-      uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
 <% end %>
 
   ## Alerts ##
