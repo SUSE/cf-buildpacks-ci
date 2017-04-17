@@ -22,24 +22,6 @@ resource_types:
 
 resources: ############################################################################################################
 
-  ## cf-space-resource ##
-
-  - name: cf-bp-space
-    type: cf-space-resource
-    source:
-      target: api.buildpacks-shared.cf-app.com
-      username: {{ci-cf-username}}
-      password: {{ci_cf_shared_password}}
-      organization: pivotal
-
-  - name: cf-brat-space
-    type: cf-space-resource
-    source:
-      target: api.buildpacks-shared.cf-app.com
-      username: {{ci-cf-username}}
-      password: {{ci_cf_shared_password}}
-      organization: pivotal
-
   ## Git ##
 
     <% if language == 'multi' || language == 'hwc' %>
@@ -320,7 +302,6 @@ jobs: ##########################################################################
           passed: [ "detect-new-version-and-upload-artifacts" ]
           trigger: true
       - do:
-        - put: cf-bp-space
         - task: rspec
           file: buildpacks-ci/tasks/run-buildpack-shared-specs/task.yml
           params:
@@ -509,7 +490,6 @@ jobs: ##########################################################################
             trigger: true
         - aggregate:
           - do:
-            - put: cf-bp-space
             - task: rspec
               file: buildpacks-ci/tasks/run-buildpack-shared-specs/task.yml
               params:
@@ -522,7 +502,6 @@ jobs: ##########################################################################
               task: delete-cf-space
               file: buildpacks-ci/tasks/delete-cf-space/task-bp.yml
           - do:
-            - put: cf-brat-space
             - task: brats
               file: buildpacks-ci/tasks/run-shared-brats/task.yml
               params:

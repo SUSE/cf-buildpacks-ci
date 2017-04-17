@@ -6,7 +6,5 @@ image_resource:
     repository: cfbuildpacks/ci
 inputs:
   - name: buildpacks-ci
-  - name: cf-brat-space
-    path: cf-space
 run:
-  path: buildpacks-ci/tasks/delete-cf-space/run.sh
+  path: /bin/true
