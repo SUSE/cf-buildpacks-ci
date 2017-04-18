@@ -142,20 +142,6 @@ resources: #####################################################################
       repository: machete
       access_token: {{buildpacks-github-token}}
 
-  ## Pivnet Release ##
-
-<% unless language == 'multi' || language == 'hwc' %>
-  - name: pivnet-production
-    type: pivnet
-    source:
-      endpoint: https://network.pivotal.io
-      bucket: pivotalnetwork
-      api_token: {{pivnet-apikey}}
-      product_slug: buildpacks
-      access_key_id: {{pivnet-access-key}}
-      secret_access_key: {{pivnet-secret-key}}
-<% end %>
-
   ## S3 Buckets ##
 
   - name: pivotal-buildpack
@@ -457,21 +443,6 @@ jobs: ##########################################################################
         params:
           repository: pivnet-buildpack-metadata-artifacts
           rebase: true
-
-  - name: release-to-pivnet
-    public: true
-    plan:
-      - get: pivotal-buildpack-cached
-        passed: [ write-pivnet-metadata ]
-        trigger: true
-      - get: pivnet-buildpack-metadata
-        passed: [ write-pivnet-metadata ]
-        trigger: true
-      - put: pivnet-production
-        params:
-          file_glob: pivotal-buildpack-cached/<%= language %>_buildpack-cached-v*.zip
-          s3_filepath_prefix: product-files/buildpacks
-          metadata_file: pivnet-buildpack-metadata/pivnet-metadata/<%= language %>.yml
 <% end %>
   - name: specs-edge-shared-develop
     serial: true
