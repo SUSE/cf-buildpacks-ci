@@ -132,14 +132,14 @@ resources: #####################################################################
     type: github-release
     source:
       user: {{buildpacks-github-org}}
-      repository: buildpack-packager
+      repository: cf-buildpack-packager
       access_token: {{buildpacks-github-token}}
 
   - name: machete
     type: github-release
     source:
       user: {{buildpacks-github-org}}
-      repository: machete
+      repository: cf-machete
       access_token: {{buildpacks-github-token}}
 
   ## S3 Buckets ##
