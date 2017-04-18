@@ -9,7 +9,7 @@ inputs:
   - name: buildpack
   - name: cf-environments
 run:
-  path: buildpacks-ci/tasks/run-buildpack-specs/run.sh
+  path: /bin/true
 params:
   COMPOSER_GITHUB_OAUTH_TOKEN:
   STACKS:
