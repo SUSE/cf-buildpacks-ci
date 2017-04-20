@@ -5,7 +5,7 @@ machete-git-uri: git@github.com:cloudfoundry/machete.git
 buildpack-packager-git-uri-public: https://github.com/cloudfoundry/buildpack-packager
 buildpack-packager-git-uri: git@github.com:cloudfoundry/buildpack-packager.git
 
-binary-builder-git-uri: https://github.com/SUSE/cf-binary-builder.git
+binary-builder-git-uri: https://github.com/SUSE/cf-binary-builder
 
 cf-release-git-uri: https://github.com/cloudfoundry/cf-release
 
