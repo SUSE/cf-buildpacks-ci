@@ -19,7 +19,7 @@ pushd binary-builder
   bundle install --jobs="$(nproc)"
 
   if [ "${RUN_ORACLE_PHP_TESTS-false}" = "true" ]; then
-    sudo zypper refresh && sudo zypper install -y aws-cli
+    sudo zypper install -y aws-cli
     bundle exec rspec "spec/integration/${SPEC_TO_RUN}_spec.rb"
   else
     bundle exec "rspec spec/integration/${SPEC_TO_RUN}_spec.rb" --tag ~run_oracle_php_tests
