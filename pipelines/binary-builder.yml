@@ -1,3 +1,7 @@
+<% auto_build_names = %w(bower composer glide godep nginx node yarn) %>
+<% manual_build_names = %w(go php php7 ruby jruby bundler python httpd) %>
+<% dep_build_names = auto_build_names + manual_build_names %>
+
 resource_types: #######################################################################################################
   - name: concourse2tracker
     type: docker-image
@@ -32,7 +36,6 @@ resources: #####################################################################
       paths: [ binary-builds/* ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
 
-<% dep_build_names = %w(bower go bundler composer glide godep httpd jruby php php7 python node nginx ruby yarn) %>
 <% dep_build_names.each do |dep| %>
   - name: <%= dep %>-builds
     type: git
@@ -54,7 +57,7 @@ resources: #####################################################################
       private_key: {{public-buildpacks-ci-robots-private-key}}
 <% end %>
 
-<% %w(bower composer glide godep nginx node yarn).each do |auto_dep| %>
+<% auto_build_names.each do |auto_dep| %>
   - name: <%= auto_dep %>-builds-in
     type: git
     source:
@@ -103,7 +106,6 @@ resources: #####################################################################
       password: {{buildpacks-docker-password}}
       email: cf-buildpacks-eng@pivotal.io
 
-<% dep_build_names = %w(bower go bundler composer glide godep httpd jruby php php7 python node nginx ruby yarn) %>
 <% dep_build_names.each do |dep| %>
   - name: buildpacks-bucket-<%= dep %>
     type: s3
@@ -119,14 +121,14 @@ groups: ########################################################################
 
   - name: enqueue-automated-builds
     jobs:
-<% %w(bower composer glide godep nginx node yarn).each do |auto_dep| %>
+<% auto_build_names.each do |auto_dep| %>
     - trigger-<%= auto_dep %>-build
 <% end %>
 
   - name: automated-builds
     jobs:
     - binary-builder-specs
-<% %w(bower composer glide godep nginx node yarn).each do |auto_dep| %>
+<% auto_build_names.each do |auto_dep| %>
     - build-<%= auto_dep %>
 <% end %>
 <% {go: ["godep", "glide"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"], ruby: ["node","yarn"]}.each do |buildpack, dependencies| %>
