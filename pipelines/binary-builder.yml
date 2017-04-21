@@ -166,24 +166,23 @@ jobs: ##########################################################################
           file: buildpacks-ci/tasks/run-binary-builder-unit-specs/task.yml
           params:
             RUBYGEM_MIRROR: {{rubygem-mirror}}
-        - aggregate:
-          <% integration_spec_names.each do |spec_name| %>
-          - task: integration-<%= spec_name %>
-            file: buildpacks-ci/tasks/run-binary-builder-integration-specs/task.yml
-            params:
-              SPEC_TO_RUN: <%= spec_name %>
-              RUBYGEM_MIRROR: {{rubygem-mirror}}
-              RUN_ORACLE_PHP_TESTS: <%= run_oracle_php_tests %>
-            <% if run_oracle_php_tests == 'true' %>
-              AWS_ACCESS_KEY_ID: {{oracle-client-library-s3-download-access-key}}
-              AWS_SECRET_ACCESS_KEY: {{oracle-client-library-s3-download-secret-key}}
-              AWS_DEFAULT_REGION: us-east-1
-              ORACLE_LIBS_AWS_BUCKET: {{oracle-client-libs-s3-bucket}}
-              ORACLE_LIBS_FILENAME: {{oracle-client-libs-filename}}
-            <% end %>
-            privileged: true
-            attempts: 5
+        <% integration_spec_names.each do |spec_name| %>
+        - task: integration-<%= spec_name %>
+          file: buildpacks-ci/tasks/run-binary-builder-integration-specs/task.yml
+          params:
+            SPEC_TO_RUN: <%= spec_name %>
+            RUBYGEM_MIRROR: {{rubygem-mirror}}
+            RUN_ORACLE_PHP_TESTS: <%= run_oracle_php_tests %>
+          <% if run_oracle_php_tests == 'true' %>
+            AWS_ACCESS_KEY_ID: {{oracle-client-library-s3-download-access-key}}
+            AWS_SECRET_ACCESS_KEY: {{oracle-client-library-s3-download-secret-key}}
+            AWS_DEFAULT_REGION: us-east-1
+            ORACLE_LIBS_AWS_BUCKET: {{oracle-client-libs-s3-bucket}}
+            ORACLE_LIBS_FILENAME: {{oracle-client-libs-filename}}
           <% end %>
+          privileged: true
+          attempts: 5
+        <% end %>
         on_failure:
           put: failure-alert
           params:
