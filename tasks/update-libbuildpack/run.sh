@@ -26,7 +26,9 @@ pushd buildpack
 		go get github.com/onsi/ginkgo/ginkgo
 		go get github.com/onsi/gomega
 
-		go generate
+		go generate || true
+		[ -d supply ] && (cd supply && (go generate || true))
+		[ -d finalize ] && (cd finalize && (go generate || true))
 		ginkgo -r
 	popd
 
