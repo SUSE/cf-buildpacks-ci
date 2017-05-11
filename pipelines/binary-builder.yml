@@ -104,7 +104,7 @@ resources: #####################################################################
       repository: SUSE/cf-suse-stacks
       username: {{buildpacks-docker-username}}
       password: {{buildpacks-docker-password}}
-      email: cf-buildpacks-eng@pivotal.io
+      email: cfcibot@suse.de
 
 <% dep_build_names.each do |dep| %>
   - name: buildpacks-bucket-<%= dep %>

@@ -21,7 +21,7 @@ buildpacks-ci-git-uri-public-develop-branch: develop
 buildpacks-ci-git-uri-public-branch: master
 
 buildpacks-docker-ci-repo: cfbuildpacks/ci
-buildpacks-docker-user-email: cf-buildpacks-eng@pivotal.io
+buildpacks-docker-user-email: cfcibot@suse.de
 buildpacks-concourse2tracker-docker-repo: cfbuildpacks/concourse2tracker
 
 deployments-git-uri: git@github.com:pivotal-cf/deployments-buildpacks
