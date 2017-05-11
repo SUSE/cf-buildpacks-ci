@@ -88,7 +88,7 @@ resources: #####################################################################
   - name: docker-cflinuxfs2-rootfs
     type: docker-image
     source:
-      repository: SUSE/cf-suse-stacks
+      repository: splatform/rootfs-opensuse42
       username: {{buildpacks-docker-username}}
       password: {{buildpacks-docker-password}}
       email: cfcibot@suse.de
