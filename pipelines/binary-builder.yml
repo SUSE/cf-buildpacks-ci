@@ -3,10 +3,6 @@
 <% dep_build_names = auto_build_names + manual_build_names %>
 
 resource_types: #######################################################################################################
-  - name: concourse2tracker
-    type: docker-image
-    source:
-      repository: cfbuildpacks/concourse2tracker
   - name: slack-notification
     type: docker-image
     source:
@@ -87,10 +83,6 @@ resources: #####################################################################
         - CHANGELOG
 <% end %>
 
-  ## Concourse2Tracker ##
-
-  - name: concourse2tracker
-    type: concourse2tracker
   - name: failure-alert
     type: slack-notification
     source:
@@ -224,11 +216,6 @@ jobs: ##########################################################################
           params:
             repository: builds-yaml-artifacts
             rebase: true
-        - put: concourse2tracker
-          params:
-            api_token: {{pivotal-tracker-api-token}}
-            git_path: builds-yaml
-            project_id: {{cf-buildpacks-public-tracker-id}}
         on_failure:
           put: failure-alert
           params:
@@ -292,11 +279,6 @@ jobs: ##########################################################################
           params:
             repository: builds-yaml-artifacts
             rebase: true
-        - put: concourse2tracker
-          params:
-            api_token: {{pivotal-tracker-api-token}}
-            git_path: builds-yaml
-            project_id: {{cf-buildpacks-public-tracker-id}}
         on_failure:
           put: failure-alert
           params:
