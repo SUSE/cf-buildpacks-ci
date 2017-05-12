@@ -232,8 +232,8 @@ class ConcourseBinaryBuilder
 
     Dir.chdir(in_dir) do
 
-      GitClient.set_global_config('user.email', 'cf-buildpacks-eng@pivotal.io')
-      GitClient.set_global_config('user.name', 'CF Buildpacks Team CI Server')
+      GitClient.set_global_config('user.email', 'cfcibot@suse.de')
+      GitClient.set_global_config('user.name', 'SUSE CF CI Server')
       GitClient.add_file(file)
       GitClient.safe_commit(@git_msg)
 
