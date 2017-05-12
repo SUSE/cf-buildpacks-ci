@@ -83,11 +83,6 @@ resources: #####################################################################
         - CHANGELOG
 <% end %>
 
-  - name: failure-alert
-    type: slack-notification
-    source:
-      url: {{concourse-job-failure-notifications-slack-webhook}}
-
  ## Docker Images ##
 
   - name: docker-cflinuxfs2-rootfs
@@ -175,13 +170,6 @@ jobs: ##########################################################################
           privileged: true
           attempts: 5
         <% end %>
-        on_failure:
-          put: failure-alert
-          params:
-            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-            channel: {{concourse-job-failure-notifications-slack-channel}}
-            username: concourse
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
 <% %w(go php php7 ruby jruby bundler python httpd).each do |dependency| %>
   - name: build-<%= dependency %>
@@ -216,13 +204,6 @@ jobs: ##########################################################################
           params:
             repository: builds-yaml-artifacts
             rebase: true
-        on_failure:
-          put: failure-alert
-          params:
-            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-            channel: {{concourse-job-failure-notifications-slack-channel}}
-            username: concourse
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 <% end %>
 
 <% %w(bower godep composer glide nginx node yarn).each do |dependency| %>
@@ -279,13 +260,6 @@ jobs: ##########################################################################
           params:
             repository: builds-yaml-artifacts
             rebase: true
-        on_failure:
-          put: failure-alert
-          params:
-            text: "$BUILD_PIPELINE_NAME $BUILD_JOB_NAME job on Concourse failed! \n Check: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME"
-            channel: {{concourse-job-failure-notifications-slack-channel}}
-            username: concourse
-            icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 <% end %>
 
 <% {go: ["godep", "glide"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"], ruby: ["node","yarn"]}.each do |buildpack, dependencies| %>
