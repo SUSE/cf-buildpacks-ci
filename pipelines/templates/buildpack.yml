@@ -116,7 +116,7 @@ resources: #####################################################################
     type: github-release
     source:
       user: <%= github_release_user %>
-      repository: <%= language %>-buildpack
+      repository: cf-<%= language %>-buildpack
       access_token: {{buildpacks-github-token}}
 
 <% if language == 'hwc' %>
