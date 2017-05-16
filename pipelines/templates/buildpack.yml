@@ -179,12 +179,6 @@ resources: #####################################################################
     source:
       url: {{concourse-job-failure-notifications-slack-webhook}}
 
-  - name: sunday-night
-    type: cron
-    source:
-      expression: 0 18 * * 0
-      location: {{current-timezone}}
-
 jobs: ################################################################################################################
   <% if language == "php" %>
   - name: ensure-manifest-has-modules
@@ -203,26 +197,6 @@ jobs: ##########################################################################
           repository: updated-buildpack
           rebase: true
   <% end %>
-  - name: create-buildpack-release-story
-    serial: true
-    public: true
-    plan:
-      - get: sunday-night
-        trigger: true
-      - aggregate:
-        - get: pivotal-buildpack
-        - get: pivotal-buildpack-cached
-        - get: buildpacks-ci
-        - get: buildpack
-          resource: buildpack-master
-      - do:
-        - task: create-buildpack-release-story
-          file: buildpacks-ci/tasks/create-buildpack-release-tracker-story/task.yml
-          params:
-            BUILDPACK_NAME: <%= language %>
-            TRACKER_PROJECT_ID: {{cf-buildpacks-public-tracker-id}}
-            TRACKER_REQUESTER_ID: {{cf-buildpacks-requester-id}}
-            TRACKER_API_TOKEN: {{pivotal-tracker-api-token}}
   - name: detect-new-version-and-upload-artifacts
     serial: true
     public: true
