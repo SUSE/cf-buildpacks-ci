@@ -90,7 +90,7 @@ resources: #####################################################################
       repository: splatform/rootfs-opensuse42
       username: {{buildpacks-docker-username}}
       password: {{buildpacks-docker-password}}
-      email: cfcibot@suse.de
+      email: cf-ci-bot@suse.de
 
 <% dep_build_names.each do |dep| %>
   - name: buildpacks-bucket-<%= dep %>

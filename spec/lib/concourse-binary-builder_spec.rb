@@ -107,7 +107,7 @@ describe ConcourseBinaryBuilder do
 
 
       it 'makes the commit as buildpacks ci robot' do
-        expect(GitClient).to have_received(:set_global_config).with('user.email','cfcibot@suse.de')
+        expect(GitClient).to have_received(:set_global_config).with('user.email','cf-ci-bot@suse.de')
         expect(GitClient).to have_received(:set_global_config).with('user.name','SUSE CF CI Server')
       end
 
