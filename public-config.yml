@@ -5,23 +5,23 @@ machete-git-uri: git@github.com:cloudfoundry/machete.git
 buildpack-packager-git-uri-public: https://github.com/cloudfoundry/buildpack-packager
 buildpack-packager-git-uri: git@github.com:cloudfoundry/buildpack-packager.git
 
-binary-builder-git-uri: https://github.com/cloudfoundry/binary-builder.git
+binary-builder-git-uri: https://github.com/SUSE/cf-binary-builder
 
 cf-release-git-uri: https://github.com/cloudfoundry/cf-release
 
-buildpacks-github-org: cloudfoundry
-buildpacks-binaries-s3-bucket: pivotal-buildpacks
+buildpacks-github-org: SUSE
+buildpacks-binaries-s3-bucket: cf-buildpacks
 bosh-lite-domain-name: cf-app.com
 
-buildpacks-ci-pipeline-uri: https://buildpacks.ci.cf-app.com/teams/main/pipelines/buildpacks-ci
-buildpacks-ci-git-uri-public: https://github.com/cloudfoundry/buildpacks-ci
-public-buildpacks-ci-robots-git-uri-public: https://github.com/cloudfoundry/public-buildpacks-ci-robots
-buildpacks-ci-git-uri: git@github.com:cloudfoundry/buildpacks-ci.git
+buildpacks-ci-pipeline-uri: http://concourse.suse.de/teams/main/pipelines/cf-buildpacks-ci
+buildpacks-ci-git-uri-public: https://github.com/SUSE/cf-buildpacks-ci
+public-buildpacks-ci-robots-git-uri-public: https://github.com/SUSE/cf-public-buildpacks-ci-robots
+buildpacks-ci-git-uri: git@github.com:SUSE/cf-buildpacks-ci.git
 buildpacks-ci-git-uri-public-develop-branch: develop
 buildpacks-ci-git-uri-public-branch: master
 
 buildpacks-docker-ci-repo: cfbuildpacks/ci
-buildpacks-docker-user-email: cf-buildpacks-eng@pivotal.io
+buildpacks-docker-user-email: cf-ci-bot@suse.de
 buildpacks-concourse2tracker-docker-repo: cfbuildpacks/concourse2tracker
 
 deployments-git-uri: git@github.com:pivotal-cf/deployments-buildpacks
