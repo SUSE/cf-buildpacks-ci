@@ -7,10 +7,8 @@ image_resource:
 inputs:
   - name: buildpacks-ci
   - name: buildpack
-  - name: cf-bp-space
-    path: cf-space
 run:
-  path: buildpacks-ci/tasks/run-buildpack-shared-specs/run.sh
+  path: /bin/true
 params:
   COMPOSER_GITHUB_OAUTH_TOKEN:
   STACKS:

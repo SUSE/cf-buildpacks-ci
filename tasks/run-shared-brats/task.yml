@@ -8,10 +8,9 @@ inputs:
   - name: buildpacks-ci
   - name: brats
   - name: cf-environments
-  - name: cf-brat-space
     path: cf-space
 run:
-  path: buildpacks-ci/tasks/run-shared-brats/run.sh
+  path: /bin/true
 params:
   BUILDPACK_BRANCH:
   CI_CF_USERNAME:
