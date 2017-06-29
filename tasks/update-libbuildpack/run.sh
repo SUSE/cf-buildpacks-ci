@@ -19,13 +19,11 @@ fi
 
 pushd buildpack
 	pushd "$update_dir"
-		go get github.com/FiloSottile/gvt
 		go get github.com/golang/mock/gomock
 		go get github.com/golang/mock/mockgen
 		go get github.com/onsi/ginkgo/ginkgo
 		go get github.com/onsi/gomega
 
-		gvt update github.com/cloudfoundry/libbuildpack
 		go generate
 		ginkgo -r
 	popd
