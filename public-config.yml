@@ -11,6 +11,7 @@ cf-release-git-uri: https://github.com/cloudfoundry/cf-release
 
 buildpacks-github-org: SUSE
 buildpacks-binaries-s3-bucket: cf-buildpacks
+buildpack-dependencies-host-domain: minio.from-the.cloud:9000/cf-buildpacks
 bosh-lite-domain-name: cf-app.com
 
 buildpacks-ci-pipeline-uri: http://concourse.suse.de/teams/main/pipelines/cf-buildpacks-ci
