@@ -32,7 +32,7 @@ resources: #####################################################################
   - name: buildpack-develop
     type: git
     source:
-      uri: git@github.com:<%= git_repo_organization %>/<%= language %>-buildpack.git
+      uri: git@github.com:<%= git_repo_organization %>/cf-<%= language %>-buildpack.git
       private_key: {{<%= language %>-buildpack-private-key}}
       branch: develop
       ignore_paths:
