@@ -37,7 +37,7 @@ class BuildpackDependencyUpdater::Node < BuildpackDependencyUpdater
         "version" => dependency_version,
         "uri" => uri,
         "md5" => md5,
-        "cf_stacks" => ["cflinuxfs2"]
+        "cf_stacks" => ["opensuse42"]
       }
       buildpack_manifest["dependencies"] << dependency_hash
     end
