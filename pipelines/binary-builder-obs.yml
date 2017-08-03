@@ -170,7 +170,8 @@ jobs: ##########################################################################
           attempts: 5
         <% end %>
 
-<% %w(go php php7 ruby jruby bundler python httpd).each do |dependency| %>
+# These are the binaries that can already be built in OBS
+<% %w(ruby bundler).each do |dependency| %>
   - name: build-<%= dependency %>
     serial: true
     public: true
@@ -198,6 +199,42 @@ jobs: ##########################################################################
             OBS_USERNAME: {{obs-username}}
             OBS_PASSWORD: {{obs-password}}
             OBS_PROJECT: {{obs-project}}
+          privileged: true
+        - put: buildpacks-bucket-<%= dependency %>
+          params:
+            file: binary-builder-artifacts/<%= dependency %>*
+        - put: builds-out
+          params:
+            repository: builds-yaml-artifacts
+            rebase: true
+<% end %>
+
+# These binaries still need to be migrated to OBS
+<% %w(go php php7 jruby python httpd).each do |dependency| %>
+  - name: build-<%= dependency %>
+    serial: true
+    public: true
+    # disable_manual_trigger: true # instead, trigger jobs by pushing yaml to public-buildpacks-ci-robots/binary-builds
+    plan:
+      - aggregate:
+        - get: builds-yaml
+          resource: <%= dependency %>-builds
+          trigger: true
+        - get: binary-builder
+          passed: [binary-builder-specs]
+        - get: buildpacks-ci
+        - get: built-yaml
+          resource: <%= dependency %>-built-output
+        - get: buildpacks-bucket-<%= dependency %>
+      - do:
+        - task: build-binary
+          file: buildpacks-ci/tasks/build-binary/task.yml
+          params:
+            DEPENDENCY: <%= dependency %>
+            GIT_SSH_KEY: {{public-buildpacks-ci-robots-private-key}}
+            RUBYGEM_MIRROR: {{rubygem-mirror}}
+            BINARY_BUILDER_PLATFORM: {{binary-builder-platform}}
+            BINARY_BUILDER_OS_NAME: {{binary-builder-os-name}}
           privileged: true
         - put: buildpacks-bucket-<%= dependency %>
           params:
@@ -246,16 +283,13 @@ jobs: ##########################################################################
         - get: buildpacks-bucket-<%= dependency %>
       - do:
         - task: build-binary
-          file: buildpacks-ci/tasks/build-binary-in-obs/task.yml
+          file: buildpacks-ci/tasks/build-binary/task.yml
           params:
             GIT_SSH_KEY: {{public-buildpacks-ci-robots-private-key}}
             DEPENDENCY: <%= dependency %>
             RUBYGEM_MIRROR: {{rubygem-mirror}}
             BINARY_BUILDER_PLATFORM: {{binary-builder-platform}}
             BINARY_BUILDER_OS_NAME: {{binary-builder-os-name}}
-            OBS_USERNAME: {{obs-username}}
-            OBS_PASSWORD: {{obs-password}}
-            OBS_PROJECT: {{obs-project}}
           privileged: true
         - put: buildpacks-bucket-<%= dependency %>
           params:
