@@ -1,0 +1,57 @@
+#
+# spec file for package bundler
+#
+# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
+
+
+Name:           bundler
+Version:        <%= version %>
+Release:        1
+%define mod_name bundler
+%define mod_full_name %{mod_name}-%{version}
+Summary: This is the bundler binary used in buildpacks in SUSE CloudFoundry (SCF)
+License:        MIT
+Group:          Cloud/Platform/scf
+Url:            http://bundler.io
+Source:         http://rubygems.org/gems/%{mod_full_name}.gem
+BuildRequires:  %{ruby >= 1.8.7}
+BuildRequires:  %{rubygem gem2rpm}
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+
+%description
+
+%prep
+export GEM_HOME=$PWD
+export GEM_PATH=$PWD
+unset RUBYOPT; gem install %{_sourcedir}/%{mod_full_name}.gem --no-ri --no-rdoc --env-shebang --no-format-executable
+
+rm -f bundler-%{version}.gem
+rm -rf cache/bundler-%{version}.gem
+
+%build
+
+%install
+mkdir -p %{buildroot}/var/binary-builder
+cd %{_builddir}
+tar czvf /home/abuild/rpmbuild/OTHER/cf-buildpack-binary-%{mod_full_name}.tgz . --owner=0 --group=0
+
+%post
+%postun
+
+%files
+%defattr(-,root,root)
+
+%changelog
+

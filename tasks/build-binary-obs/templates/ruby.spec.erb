@@ -1,0 +1,82 @@
+#
+# spec file for package ruby 
+#
+# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
+
+
+Name:           ruby
+Version:        <%= version %>
+%define pkg_version <%= version %>
+Release:        1
+Summary:        An Interpreted Object-Oriented Scripting Language
+License:        BSD-2-Clause or Ruby
+Group:          Cloud/Platform/scf
+Url:            http://rubylang.org
+Source:         <%= source_url %>
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  awk
+BuildRequires:  gdbm-devel
+BuildRequires:  libffi-devel
+BuildRequires:  libyaml-devel
+BuildRequires:  ncurses-devel
+BuildRequires:  openssl-devel
+BuildRequires:  pkg-config
+BuildRequires:  procps
+BuildRequires:  readline-devel
+BuildRequires:  timezone
+BuildRequires:  zlib-devel
+BuildRequires:  freetype2-devel
+BuildRequires:  xorg-x11-libX11-devel
+BuildRequires:  xorg-x11-devel
+BuildRequires:  valgrind-devel
+BuildRequires:  xz
+BuildRequires:  update-alternatives
+PreReq:         update-alternatives
+%define _prefix <%= prefix_path %>
+Prefix:         %{_prefix}
+
+%description
+
+%prep
+%setup -q -n ruby-%{pkg_version}
+
+%build
+export CFLAGS="%{optflags} -fno-strict-aliasing"
+%configure \
+    --enable-load-relative \
+    --disable-install-doc \
+    debugflags=-g \
+    --prefix=%{_prefix} \
+    --without-gmp
+%{__make} all V=1
+
+%install
+%makeinstall V=1
+cd %{buildroot}%{_prefix}
+tar czvf /home/abuild/rpmbuild/OTHER/cf-buildpack-binary-%{name}-%{version}.tgz . --owner=0 --group=0
+
+export NO_BRP_CHECK_RPATH=true
+
+%post
+%postun
+
+%files
+%defattr(-,root,root)
+%dir /app/
+%dir /app/vendor
+<%= prefix_path%>
+
+%changelog
+

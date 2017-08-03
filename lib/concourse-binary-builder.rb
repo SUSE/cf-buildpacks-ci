@@ -43,7 +43,7 @@ class ConcourseBinaryBuilder
     commit_yaml_artifacts
   end
 
-  private
+  protected
 
   def load_builds_yaml
     builds_file = File.join(builds_dir, 'binary-builds', "#{dependency}-builds.yml")

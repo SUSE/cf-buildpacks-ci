@@ -22,6 +22,8 @@ buildpacks-ci-git-uri-public-develop-branch: develop
 buildpacks-ci-git-uri-public-branch: master
 
 buildpacks-docker-ci-repo: splatform/cf-ci-buildpacks
+obs-project: Cloud:Platform:buildpack-binaries
+
 buildpacks-docker-user-email: cf-ci-bot@suse.de
 buildpacks-concourse2tracker-docker-repo: cfbuildpacks/concourse2tracker
 

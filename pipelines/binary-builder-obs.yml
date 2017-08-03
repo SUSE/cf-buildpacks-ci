@@ -1,0 +1,301 @@
+<% auto_build_names = %w(bower composer glide godep nginx node yarn) %>
+<% manual_build_names = %w(go php php7 ruby jruby bundler python httpd) %>
+<% dep_build_names = auto_build_names + manual_build_names %>
+
+resource_types: #######################################################################################################
+  - name: slack-notification
+    type: docker-image
+    source:
+      repository: cfcommunity/slack-notification-resource
+
+resources: ############################################################################################################
+
+  ## Git Repos ##
+
+  - name: binary-builder
+    type: git
+    source:
+      uri: {{binary-builder-git-uri}}
+
+  - name: buildpacks-ci
+    type: git
+    source:
+      uri: {{buildpacks-ci-git-uri-public}}
+      branch: {{buildpacks-ci-git-uri-public-branch}}
+
+  - name: builds-out
+    type: git
+    source:
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
+      branch: build_ruby_on_obs
+      paths: [ binary-builds/* ]
+      private_key: {{public-buildpacks-ci-robots-private-key}}
+
+<% dep_build_names.each do |dep| %>
+  - name: <%= dep %>-builds
+    type: git
+    source:
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
+      branch: build_ruby_on_obs
+      paths: [ binary-builds/<%= dep %>-builds.yml ]
+      private_key: {{public-buildpacks-ci-robots-private-key}}
+<% end %>
+
+<% dep_built_output_names = dep_build_names %>
+<% dep_built_output_names.each do |dep| %>
+  - name: <%= dep %>-built-output
+    type: git
+    source:
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
+      branch: build_ruby_on_obs
+      paths: [ binary-built-output/<%= dep %>-built.yml ]
+      private_key: {{public-buildpacks-ci-robots-private-key}}
+<% end %>
+
+<% auto_build_names.each do |auto_dep| %>
+  - name: <%= auto_dep %>-builds-in
+    type: git
+    source:
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
+      branch: build_ruby_on_obs
+      paths: [ binary-builds/<%= auto_dep %>-builds.yml ]
+      private_key: {{public-buildpacks-ci-robots-private-key}}
+
+  - name: <%= auto_dep %>-new-releases
+    type: git
+    source:
+      uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
+      branch: build_ruby_on_obs
+      paths: [ new-release-notifications/<%= auto_dep %>-new.yml ]
+      private_key: {{public-buildpacks-ci-robots-private-key}}
+<% end %>
+
+<% %w(go nodejs ruby php staticfile).each do |language| %>
+  - name: <%= language %>-buildpack
+    type: git
+    source:
+      uri: git@github.com:<%= organization %>/<%= language %>-buildpack.git
+      private_key: {{<%= language %>-buildpack-private-key}}
+      branch: develop
+      ignore_paths:
+        - VERSION
+        - CHANGELOG
+<% end %>
+
+ ## Docker Images ##
+
+  - name: docker-cflinuxfs2-rootfs
+    type: docker-image
+    source:
+      repository: splatform/rootfs-opensuse42
+      username: {{buildpacks-docker-username}}
+      password: {{buildpacks-docker-password}}
+      email: cf-ci-bot@suse.de
+
+<% dep_build_names.each do |dep| %>
+  - name: buildpacks-bucket-<%= dep %>
+    type: s3
+    source:
+      bucket: {{buildpacks-binaries-s3-bucket}}
+      access_key_id: {{pivotal-buildpacks-s3-access-key}}
+      secret_access_key: {{pivotal-buildpacks-s3-secret-key}}
+      regexp: dependencies/<%= dep %>/(.*)
+      endpoint: {{buildpacks-binaries-s3-endpoint}}
+<% end %>
+
+groups: ###############################################################################################################
+
+  - name: enqueue-automated-builds
+    jobs:
+<% auto_build_names.each do |auto_dep| %>
+    - trigger-<%= auto_dep %>-build
+<% end %>
+
+  - name: automated-builds
+    jobs:
+    - binary-builder-specs
+<% auto_build_names.each do |auto_dep| %>
+    - build-<%= auto_dep %>
+<% end %>
+<% {go: ["godep", "glide"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"], ruby: ["node","yarn"]}.each do |buildpack, dependencies| %>
+  <% dependencies.each do |dependency| %>
+    - update-<%= dependency %>-in-<%= buildpack %>-buildpack
+  <% end %>
+<% end %>
+
+  - name: manual-builds
+    jobs:
+    - binary-builder-specs
+<% %w(go php php7 ruby jruby bundler python httpd).each do |dependency| %>
+    - build-<%= dependency %>
+<% end %>
+
+jobs: #################################################################################################################
+
+  - name: binary-builder-specs
+    serial: true
+    public: true
+    plan:
+      - aggregate:
+        - get: buildpacks-ci
+        - get: docker-cflinuxfs2-rootfs
+          trigger: true
+        - get: binary-builder
+          trigger: true
+      - do:
+        <% integration_spec_names = %w(bundler glide go godep httpd jruby nginx nodejs php5 php7 php71 php5_with_geolitedb php7_with_geolitedb python ruby url_output yaml_flag) %>
+        - task: all-expected-integration-specs-will-run
+          file: buildpacks-ci/tasks/check-for-binary-builder-integration-spec-presence/task.yml
+          params:
+            SPEC_NAMES: <%= integration_spec_names.join(',') %>
+        - task: all-unit-tests
+          file: buildpacks-ci/tasks/run-binary-builder-unit-specs/task.yml
+          params:
+            RUBYGEM_MIRROR: {{rubygem-mirror}}
+        <% integration_spec_names.each do |spec_name| %>
+        - task: integration-<%= spec_name %>
+          file: buildpacks-ci/tasks/run-binary-builder-integration-specs/task.yml
+          params:
+            SPEC_TO_RUN: <%= spec_name %>
+            RUBYGEM_MIRROR: {{rubygem-mirror}}
+            RUN_ORACLE_PHP_TESTS: <%= run_oracle_php_tests %>
+          <% if run_oracle_php_tests == 'true' %>
+            AWS_ACCESS_KEY_ID: {{oracle-client-library-s3-download-access-key}}
+            AWS_SECRET_ACCESS_KEY: {{oracle-client-library-s3-download-secret-key}}
+            AWS_DEFAULT_REGION: us-east-1
+            ORACLE_LIBS_AWS_BUCKET: {{oracle-client-libs-s3-bucket}}
+            ORACLE_LIBS_FILENAME: {{oracle-client-libs-filename}}
+          <% end %>
+          privileged: true
+          attempts: 5
+        <% end %>
+
+<% %w(go php php7 ruby jruby bundler python httpd).each do |dependency| %>
+  - name: build-<%= dependency %>
+    serial: true
+    public: true
+    # disable_manual_trigger: true # instead, trigger jobs by pushing yaml to public-buildpacks-ci-robots/binary-builds
+    plan:
+      - aggregate:
+        - get: builds-yaml
+          resource: <%= dependency %>-builds
+          trigger: true
+        - get: binary-builder
+          passed: [binary-builder-specs]
+        - get: buildpacks-ci
+        - get: built-yaml
+          resource: <%= dependency %>-built-output
+        - get: buildpacks-bucket-<%= dependency %>
+      - do:
+        - task: build-binary
+          file: buildpacks-ci/tasks/build-binary-obs/task.yml
+          params:
+            DEPENDENCY: <%= dependency %>
+            GIT_SSH_KEY: {{public-buildpacks-ci-robots-private-key}}
+            RUBYGEM_MIRROR: {{rubygem-mirror}}
+            BINARY_BUILDER_PLATFORM: {{binary-builder-platform}}
+            BINARY_BUILDER_OS_NAME: {{binary-builder-os-name}}
+            OBS_USERNAME: {{obs-username}}
+            OBS_PASSWORD: {{obs-password}}
+            OBS_PROJECT: {{obs-project}}
+          privileged: true
+        - put: buildpacks-bucket-<%= dependency %>
+          params:
+            file: binary-builder-artifacts/<%= dependency %>*
+        - put: builds-out
+          params:
+            repository: builds-yaml-artifacts
+            rebase: true
+<% end %>
+
+<% %w(bower godep composer glide nginx node yarn).each do |dependency| %>
+  - name: trigger-<%= dependency %>-build
+    serial: true
+    public: true
+    plan:
+      - aggregate:
+        - get: buildpacks-ci
+        - get: new-releases
+          resource: <%= dependency %>-new-releases
+          trigger: true
+        - get: binary-builds
+          resource: <%= dependency %>-builds
+      - task: queue-binary-build
+        file: buildpacks-ci/tasks/queue-dependency-build/task.yml
+        params:
+          DEPENDENCY: <%= dependency %>
+      - put: <%= dependency %>-builds
+        params:
+          repository: binary-builds-artifacts
+          rebase: true
+
+  - name: build-<%= dependency %>
+    serial: true
+    public: true
+    plan:
+      - aggregate:
+        - get: built-yaml
+          resource: <%= dependency %>-built-output
+        - get: builds-yaml
+          resource: <%= dependency %>-builds-in
+          version: every
+          trigger: true
+        - get: binary-builder
+          passed: [binary-builder-specs]
+        - get: buildpacks-ci
+        - get: buildpacks-bucket-<%= dependency %>
+      - do:
+        - task: build-binary
+          file: buildpacks-ci/tasks/build-binary-in-obs/task.yml
+          params:
+            GIT_SSH_KEY: {{public-buildpacks-ci-robots-private-key}}
+            DEPENDENCY: <%= dependency %>
+            RUBYGEM_MIRROR: {{rubygem-mirror}}
+            BINARY_BUILDER_PLATFORM: {{binary-builder-platform}}
+            BINARY_BUILDER_OS_NAME: {{binary-builder-os-name}}
+            OBS_USERNAME: {{obs-username}}
+            OBS_PASSWORD: {{obs-password}}
+            OBS_PROJECT: {{obs-project}}
+          privileged: true
+        - put: buildpacks-bucket-<%= dependency %>
+          params:
+            file: binary-builder-artifacts/<%= dependency %>*
+        - put: builds-out
+          resource: <%= dependency %>-built-output
+          params:
+            repository: builds-yaml-artifacts
+            rebase: true
+<% end %>
+
+<% {go: ["godep", "glide"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"], ruby: ["node","yarn"]}.each do |buildpack, dependencies| %>
+  <% dependencies.each do |dependency| %>
+  - name: update-<%= dependency %>-in-<%= buildpack %>-buildpack
+    serial: true
+    public: true
+    plan:
+      - do:
+        - aggregate:
+          - get: buildpacks-ci
+          - get: buildpack-input
+            resource: <%= buildpack %>-buildpack
+          - get: built-out
+            resource: <%= dependency %>-built-output
+            passed: [ build-<%= dependency %> ]
+            version: every
+            trigger: true
+        - task: update-dependency-in-manifests
+          file: buildpacks-ci/tasks/update-dependency-in-buildpack/task.yml
+          params:
+            BUILDPACK_NAME: <%= buildpack %>
+            DEPENDENCY: <%= dependency %>
+            TRACKER_PROJECT_ID: {{cf-buildpacks-public-tracker-id}}
+            TRACKER_API_TOKEN: {{pivotal-tracker-api-token}}
+            TRACKER_REQUESTER_ID: {{cf-buildpacks-requester-id}}
+            BUILDPACK_DEPENDENCIES_HOST_DOMAIN: {{buildpack-dependencies-host-domain}}
+            BOSH_LITE_DOMAIN_NAME: {{bosh-lite-domain-name}}
+        - put: <%= buildpack %>-buildpack
+          params:
+            repository: buildpack
+            rebase: true
+  <% end %>
+<% end %>
