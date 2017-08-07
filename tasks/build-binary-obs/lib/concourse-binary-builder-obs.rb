@@ -62,7 +62,7 @@ class ConcourseBinaryBuilderObs < ConcourseBinaryBuilder
       Net::HTTP.start(url.host, url.port) do |http|
         result = http.head(url.path)
       end
-      puts "Checking #{count}/60 for tarball to be published under #{url}...#{result.code}"
+      puts "Checking #{i+1}/60 for tarball to be published under #{url}...#{result.code}"
       break if result.kind_of?(Net::HTTPSuccess) || result.kind_of?(Net::HTTPFound)
 
       sleep(60)

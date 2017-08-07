@@ -16,13 +16,11 @@ class ObsBinaryBuilder
   end
 
   def build
-    package_string = "#{@binary}-#{@version}"
-
     puts 'Create the package on OBS using "osc"'
-    create_obs_package(package_string)
+    create_obs_package
 
     puts 'Checkout the package with osc'
-    checkout_obs_package(package_string)
+    checkout_obs_package
 
     puts 'Change working directory'
     Dir.chdir("#{obs_project}/#{package_string}")
@@ -50,20 +48,24 @@ class ObsBinaryBuilder
 
   private
 
+  def package_string
+    "#{@binary}-#{@version}"
+  end
+
   def fetch_sources
     File.write(source_filename, open(source_url).read)
   end
 
   def source_filename
-    File.join(obs_project, package_string, File.basename(URI.parse(source_url).path))
+    File.basename(URI.parse(source_url).path)
   end
 
-  def create_obs_package(package_name)
+  def create_obs_package
     package_meta_template = <<EOF
-<package project="#{obs_project}" name="#{package_name}">
-  <title>#{package_name}</title>
+<package project="#{obs_project}" name="#{package_string}">
+  <title>#{package_string}</title>
   <description>
-    Automatic build of #{package_name} @binary for the use in buildpacks in SUSE CAP.
+    Automatic build of #{package_string} @binary for the use in buildpacks in SUSE CAP.
   </description>
 </package>
 EOF
@@ -72,12 +74,12 @@ EOF
       file.write(package_meta_template)
       file.close
 
-      run_command("osc meta pkg #{obs_project} #{package_name} -F #{file.path}")
+      run_command("osc meta pkg #{obs_project} #{package_string} -F #{file.path}")
     end
   end
 
-  def checkout_obs_package(package_name)
-    run_command("osc checkout #{obs_project}/#{package_name}", allowed_exit_codes: [1])
+  def checkout_obs_package
+    run_command("osc checkout #{obs_project}/#{package_string}", allowed_exit_codes: [1])
   end
 
   def render_spec_template
