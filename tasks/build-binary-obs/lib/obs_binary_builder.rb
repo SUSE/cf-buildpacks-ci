@@ -24,9 +24,6 @@ class ObsBinaryBuilder
     puts 'Checkout the package with osc'
     checkout_obs_package(package_string)
 
-    puts 'Removing obsolete old packages'
-    remove_obsolete_file_from_obs_project(package_string)
-
     puts 'Change working directory'
     Dir.chdir("#{obs_project}/#{package_string}")
 
