@@ -3,6 +3,7 @@
 require 'tempfile'
 require 'erb'
 require 'uri'
+require 'openuri'
 
 class ObsBinaryBuilder
   attr_accessor :binary, :version
@@ -53,7 +54,11 @@ class ObsBinaryBuilder
   private
 
   def fetch_sources
-    run_command("wget #{source_url}")
+    File.write(source_filename, open(source_url).read)
+  end
+
+  def source_filename
+    File.join(obs_project, package_string, File.basename(URI.parse(source_url).path))
   end
 
   def create_obs_package(package_name)
@@ -103,15 +108,6 @@ EOF
 
   def prefix_path
     "/app/vendor/#{@binary}-#{@version}"
-  end
-
-  def remove_obsolete_file_from_obs_project(package_string)
-    obs_package_file_path = File.join(obs_project, package_string, File.basename(URI.parse(source_url).path))
-    if File.exists?(obs_package_file_path)
-      File.delete(obs_package_file_path)
-    else
-      puts "Nothing to delete, #{obs_package_file_path} does not exist."
-    end
   end
 
   def run_command(command, allowed_exit_codes: [])
