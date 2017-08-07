@@ -16,7 +16,6 @@ resources: #####################################################################
     type: git
     source:
       uri: {{binary-builder-git-uri}}
-      branch: build_ruby_on_obs
 
   - name: buildpacks-ci
     type: git
