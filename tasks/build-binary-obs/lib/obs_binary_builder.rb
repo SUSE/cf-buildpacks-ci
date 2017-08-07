@@ -3,7 +3,7 @@
 require 'tempfile'
 require 'erb'
 require 'uri'
-require 'openuri'
+require 'open-uri'
 
 class ObsBinaryBuilder
   attr_accessor :binary, :version
