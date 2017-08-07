@@ -61,7 +61,7 @@ class ObsBinaryBuilder
 <package project="#{obs_project}" name="#{package_name}">
   <title>#{package_name}</title>
   <description>
-    Automatic build of #{package_name} @binary for the use in buildpacks in SCF.
+    Automatic build of #{package_name} @binary for the use in buildpacks in SUSE CAP.
   </description>
 </package>
 EOF
@@ -115,7 +115,7 @@ EOF
   end
 
   def run_command(command, allowed_exit_codes: [])
-    process_output = `#{command}`
+    `#{command}`
     if !$?.success? && !allowed_exit_codes.include?($?.exitstatus)
       STDERR.puts "Command '#{command}' has failed with exit status #{$?.exitstatus}"
       exit 1

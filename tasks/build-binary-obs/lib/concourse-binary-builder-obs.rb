@@ -57,8 +57,7 @@ class ConcourseBinaryBuilderObs < ConcourseBinaryBuilder
 
   def wait_for_mirror_publish
     url = get_package_url
-    count = 1
-    while count <= 60 do
+    60.times do |i|
       result = nil
       Net::HTTP.start(url.host, url.port) do |http|
         result = http.head(url.path)
@@ -66,7 +65,6 @@ class ConcourseBinaryBuilderObs < ConcourseBinaryBuilder
       puts "Checking #{count}/60 for tarball to be published under #{url}...#{result.code}"
       break if result.kind_of?(Net::HTTPSuccess) || result.kind_of?(Net::HTTPFound)
 
-      count += 1
       sleep(60)
     end
   end
