@@ -50,8 +50,11 @@ class ConcourseBinaryBuilderObs < ConcourseBinaryBuilder
     File.write("#{binary_builder_dir}/#{dependency}-#{latest_build["version"]}.tgz", open(get_package_url).read)
   end
 
+  def obs_project
+    ENV["OBS_PROJECT"] || raise("no OBS_PROJECT environment variable set")
+  end
+
   def get_package_url
-    obs_project = ENV["OBS_PROJECT"] || raise("no OBS_PROJECT environment variable set")
     URI("http://download.opensuse.org/repositories/#{obs_project.gsub(":", ":/")}/openSUSE_Leap_42.3/cf-buildpack-binary-#{dependency}-#{latest_build["version"]}.tgz")
   end
 
@@ -63,9 +66,12 @@ class ConcourseBinaryBuilderObs < ConcourseBinaryBuilder
         result = http.head(url.path)
       end
       puts "Checking #{i+1}/60 for tarball to be published under #{url}...#{result.code}"
-      break if result.kind_of?(Net::HTTPSuccess) || result.kind_of?(Net::HTTPFound)
+      return if result.kind_of?(Net::HTTPSuccess) || result.kind_of?(Net::HTTPFound)
 
       sleep(60)
     end
+
+    STDERR.puts "Tarball was not found. Check https://build.opensuse.org/package/show/#{obs_project}/#{dependency}-#{latest_build["version"]}"
+    exit 1
   end
 end
