@@ -6,6 +6,12 @@ class BuildpacksCIPipelineUpdateCommand
     buildpacks_configuration = BuildpacksCIConfiguration.new
 
     pipeline_prefix = ENV.fetch('PIPELINE_PREFIX', '')
+    secrets_file = ENV.fetch('CONCOURSE_SECRETS_FILE', nil)
+
+    if secrets_file.nil?
+      puts 'Please set CONCOURSE_SECRETS_FILE to the secrets location'
+      return false
+    end
 
     text_to_include = options[:include]
     text_to_exclude = options[:exclude]
@@ -21,7 +27,7 @@ class BuildpacksCIPipelineUpdateCommand
       set-pipeline \
       --pipeline=#{pipeline_prefix}#{pipeline_name} \
       --config=<(#{config_generation_command}) \
-      --load-vars-from=<(gpg -d --no-tty ../cloudfoundry/secure/concourse-secrets.yml.gpg 2> /dev/null; cat secrets-map.yaml) \
+      --load-vars-from=<(gpg -d --no-tty #{secrets_file} 2> /dev/null; cat secrets-map.yaml) \
       --load-vars-from=public-config.yml \
     #{pipeline_specific_config}
     "}
