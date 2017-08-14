@@ -10,7 +10,7 @@ class BuildpacksCIPipelineUpdateCommand
 
     if secrets_file.nil?
       puts 'Please set CONCOURSE_SECRETS_FILE to the secrets location'
-      return false
+      exit 1
     end
 
     text_to_include = options[:include]
