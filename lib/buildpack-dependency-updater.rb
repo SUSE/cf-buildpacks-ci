@@ -21,6 +21,7 @@ class BuildpackDependencyUpdater
   attr_reader :buildpack_dir
   attr_reader :binary_built_dir
   attr_reader :removed_versions
+  attr_reader :stack_name
   attr_accessor :buildpack_manifest
 
   def self.create(dependency, *args)
@@ -35,6 +36,7 @@ class BuildpackDependencyUpdater
     @buildpack_dir = buildpack_dir
     @binary_built_dir = binary_built_dir
     @removed_versions = []
+    @stack_name = 'opensuse42'
   end
 
   def run!
@@ -84,7 +86,7 @@ class BuildpackDependencyUpdater
     dependencies = buildpack_manifest['dependencies']
     dependencies.select do |dep|
       newer_version = Gem::Version.new(dep['version'].gsub(/^v/,'')) > Gem::Version.new(dependency_version.gsub(/^v/,'')) rescue false
-      dep['name'] == dependency && newer_version
+      dep['name'] == dependency && dep['cf_stacks'].include?(stack_name) && newer_version
     end.count > 0
   end
 
@@ -94,7 +96,8 @@ class BuildpackDependencyUpdater
       dep['name'] == dependency &&
       dep['version'] == dependency_version &&
       dep['uri'] == uri &&
-      dep['md5'] == md5
+      dep['md5'] == md5 &&
+      dep['cf_stacks'].include?(stack_name)
     end.count > 0
   end
 
@@ -112,7 +115,7 @@ class BuildpackDependencyUpdater
 
   def perform_dependency_update
     original_dependencies = buildpack_manifest["dependencies"].clone
-    new_dependencies = buildpack_manifest["dependencies"].delete_if {|dep| dep["name"] == dependency}
+    new_dependencies = buildpack_manifest["dependencies"].delete_if {|dep| dep["name"] == dependency && dep['cf_stacks'].include?(stack_name)}
     @removed_versions = (original_dependencies - new_dependencies).map{|dep| dep['version']} unless new_dependencies == original_dependencies
 
     dependency_hash = {
@@ -120,7 +123,7 @@ class BuildpackDependencyUpdater
       "version"   => dependency_version,
       "uri"       => uri,
       "md5"       => md5,
-      "cf_stacks" => ["opensuse42"]
+      "cf_stacks" => [stack_name]
     }
     buildpack_manifest["dependencies"] << dependency_hash
   end
