@@ -47,6 +47,8 @@ class ObsBinaryBuilder
       "https://storage.googleapis.com/golang/go#{@version}.src.tar.gz"
     when 'python'
       "https://www.python.org/ftp/python/#{version}/Python-#{version}.tgz"
+    when 'php', 'php7'
+      "https://php.net/distributions/php-#{version}.tar.gz"
     end
   end
 
