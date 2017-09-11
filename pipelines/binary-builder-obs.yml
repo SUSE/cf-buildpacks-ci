@@ -171,7 +171,7 @@ jobs: ##########################################################################
         <% end %>
 
 # These are the binaries that can already be built in OBS
-<% %w(ruby bundler).each do |dependency| %>
+<% %w(ruby bundler go python).each do |dependency| %>
   - name: build-<%= dependency %>
     serial: true
     public: true
@@ -210,7 +210,7 @@ jobs: ##########################################################################
 <% end %>
 
 # These binaries still need to be migrated to OBS
-<% %w(go php php7 jruby python httpd).each do |dependency| %>
+<% %w(php php7 jruby httpd).each do |dependency| %>
   - name: build-<%= dependency %>
     serial: true
     public: true

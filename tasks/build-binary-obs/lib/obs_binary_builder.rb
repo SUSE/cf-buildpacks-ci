@@ -43,6 +43,10 @@ class ObsBinaryBuilder
       "http://rubygems.org/gems/#{@binary}-#{@version}.gem"
     when 'ruby'
       "https://cache.ruby-lang.org/pub/ruby/#{minor_version}/ruby-#{@version}.tar.gz"
+    when 'go'
+      "https://storage.googleapis.com/golang/go#{@version}.src.tar.gz"
+    when 'python'
+      "https://www.python.org/ftp/python/#{version}/Python-#{version}.tgz"
     end
   end
 
