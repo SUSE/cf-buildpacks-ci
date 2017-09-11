@@ -1,0 +1,37 @@
+#
+# spec file for package go
+#
+# Copyright (c) 2017 SUSE LINUX GmbH, Nuernberg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
+
+
+Name:           go
+Version:        <%= version %>
+%define pkg_version <%= version %>
+Release:        0
+Summary:        A compiled, garbage-collected, concurrent programming language
+License:        BSD-3-Clause
+Group:          Development/Languages/Other
+Url:            http://golang.org
+Source:         <%= source_url %>
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+%define _prefix <%= prefix_path %>
+Prefix:         %{_prefix}
+
+%description
+
+%prep
+
+echo "This is a stub. We currently only want to have the sources in OBS. The actual build will come later"
+exit 1
