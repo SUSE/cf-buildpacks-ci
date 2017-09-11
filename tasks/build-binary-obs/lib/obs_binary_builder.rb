@@ -47,6 +47,9 @@ class ObsBinaryBuilder
       "https://storage.googleapis.com/golang/go#{@version}.src.tar.gz"
     when 'python'
       "https://www.python.org/ftp/python/#{version}/Python-#{version}.tgz"
+    when 'jruby'
+      jruby_version = version.match(/(.*)_ruby-\d+\.\d.*/)[1]
+      "https://s3.amazonaws.com/jruby.org/downloads/#{jruby_version}/jruby-src-#{jruby_version}.tar.gz"
     when 'php', 'php7'
       "https://php.net/distributions/php-#{version}.tar.gz"
     end
