@@ -4,15 +4,17 @@ require 'tempfile'
 require 'erb'
 require 'uri'
 require 'open-uri'
+require 'yaml'
 
 class ObsBinaryBuilder
   attr_accessor :binary, :version
 
   TEMPLATE_PATH = File.join(File.dirname(__FILE__), "../templates")
 
-  def initialize(binary, version)
+  def initialize(binary, version, extensions_dir)
     @binary = binary
     @version = version
+    @extensions_dir = extensions_dir
   end
 
   def build
@@ -37,8 +39,63 @@ class ObsBinaryBuilder
     puts 'Done!'
   end
 
-  def source_url
-    case @binary
+  def extension_urls
+    extensions_file = File.join(@extensions_dir, "#{@binary}-extensions.yml")
+    return [] if !File.exists?(extensions_file)
+
+    puts "Extensions file #{extensions_file} found"
+    extensions = YAML.load_file(extensions_file)
+
+    extensions.values.flatten.map { |extension| extension_url(extension) }.compact
+  end
+
+  def extension_url(extension)
+    version = extension["version"]
+    name = extension["name"]
+
+    case extension["klass"]
+    when "PeclRecipe", "AmqpPeclRecipe", "GeoipRecipe", "OraclePeclRecipe", "MemcachedPeclRecipe", "LuaPeclRecipe"
+      "http://pecl.php.net/get/#{name}-#{version}.tgz"
+    when "HiredisRecipe"
+      "https://github.com/redis/hiredis/archive/v#{version}.tar.gz"
+    when "IonCubeRecipe"
+      "http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64_#{version}.tar.gz"
+    when "LibmemcachedRecipe"
+      "https://launchpad.net/libmemcached/1.0/#{version}/+download/libmemcached-#{version}.tar.gz"
+    when "UnixOdbcRecipe"
+      "http://www.unixodbc.org/unixODBC-#{version}.tar.gz"
+    when "LibRdKafkaRecipe"
+      "https://github.com/edenhill/librdkafka/archive/v#{version}.tar.gz"
+    when "CassandraCppDriverRecipe"
+      "https://github.com/datastax/cpp-driver/archive/#{version}.tar.gz"
+    when "LuaRecipe"
+      "http://www.lua.org/ftp/lua-#{version}.tar.gz"
+    when "RabbitMQRecipe"
+      "https://github.com/alanxz/rabbitmq-c/archive/v#{version}.tar.gz"
+    when "PhalconRecipe"
+      "https://github.com/phalcon/cphalcon/archive/v#{version}.tar.gz"
+    when "PHPIRedisRecipe"
+      "https://github.com/nrk/phpiredis/archive/v#{version}.tar.gz"
+    when "PHPProtobufPeclRecipe"
+     "https://github.com/allegro/php-protobuf/archive/v#{version}.tar.gz"
+    when "SuhosinPeclRecipe"
+      "https://download.suhosin.org/suhosin-#{version}.tar.gz"
+    when "TwigPeclRecipe"
+      "https://github.com/twigphp/Twig/archive/v#{version}.tar.gz"
+    when "XcachePeclRecipe"
+      "http://xcache.lighttpd.net/pub/Releases/#{version}/xcache-#{version}.tar.gz"
+    when "XhprofPeclRecipe"
+      "https://github.com/phacility/xhprof/archive/#{version}.tar.gz"
+    when "SnmpRecipe", "OraclePdoRecipe"
+      # Nothing to download here
+      nil
+    else
+      raise "URL for #{extension} not found"
+    end
+  end
+
+  def source_urls
+    urls = case @binary
     when 'bundler'
       "http://rubygems.org/gems/#{@binary}-#{@version}.gem"
     when 'ruby'
@@ -52,7 +109,15 @@ class ObsBinaryBuilder
       "https://s3.amazonaws.com/jruby.org/downloads/#{jruby_version}/jruby-src-#{jruby_version}.tar.gz"
     when 'php', 'php7'
       "https://php.net/distributions/php-#{version}.tar.gz"
+    when 'httpd'
+      [
+        "http://apache.mirrors.tds.net/apr/apr-1.6.2.tar.gz",
+        "http://apache.mirrors.tds.net/apr/apr-iconv-1.2.1.tar.gz",
+        "http://apache.mirrors.tds.net/apr/apr-util-1.6.0.tar.gz",
+        "https://archive.apache.org/dist/httpd/httpd-#{version}.tar.bz2"
+      ]
     end
+    Array(urls) + extension_urls
   end
 
   private
@@ -62,11 +127,18 @@ class ObsBinaryBuilder
   end
 
   def fetch_sources
-    File.write(source_filename, open(source_url).read)
+    source_urls.each do |url|
+      puts "Downloading #{url}..."
+      filename = File.basename(URI.parse(url).path)
+      puts " -> #{filename}"
+      File.write(filename, open(url).read)
+    end
   end
 
-  def source_filename
-    File.basename(URI.parse(source_url).path)
+  def spec_sources
+    source_urls.each_with_index.map do |url, index|
+      "Source#{index}: #{url}"
+    end.join("\n")
   end
 
   def create_obs_package

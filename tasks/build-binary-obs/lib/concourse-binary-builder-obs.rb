@@ -41,8 +41,10 @@ class ConcourseBinaryBuilderObs < ConcourseBinaryBuilder
   private
 
   def build_dependency
-    builder = ObsBinaryBuilder.new(dependency, latest_build["version"])
-    @source_url = builder.source_url
+    extensions_dir = File.join(builds_dir, 'binary-builds')
+
+    builder = ObsBinaryBuilder.new(dependency, latest_build["version"], extensions_dir)
+    @source_url = builder.source_urls.first
     builder.build
   end
 
