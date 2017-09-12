@@ -203,6 +203,12 @@ jobs: ##########################################################################
           params:
             repository: builds-yaml-artifacts
             rebase: true
+        - task: push-sources
+          file: buildpacks-ci/tasks/push-sources-to-obs/task.yml
+          params:
+            OBS_USERNAME:  {{obs-username}}
+            OBS_PASSWORD:  {{obs-password}}
+            PROJECT:       Cloud:Platform:sources:buildpacks
 <% end %>
 
 <% %w(bower godep composer glide nginx node yarn).each do |dependency| %>
@@ -259,6 +265,12 @@ jobs: ##########################################################################
           params:
             repository: builds-yaml-artifacts
             rebase: true
+        - task: push-sources
+          file: buildpacks-ci/tasks/push-sources-to-obs/task.yml
+          params:
+            OBS_USERNAME:  {{obs-username}}
+            OBS_PASSWORD:  {{obs-password}}
+            PROJECT:       Cloud:Platform:sources:buildpacks
 <% end %>
 
 <% {go: ["godep", "glide"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"], ruby: ["node","yarn"]}.each do |buildpack, dependencies| %>
