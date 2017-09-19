@@ -1,5 +1,5 @@
 <% auto_build_names = %w(bower composer glide godep nginx node yarn) %>
-<% manual_build_names = %w(go php php7 ruby jruby bundler python httpd) %>
+<% manual_build_names = %w(go php php7 bundler python httpd) %>
 <% dep_build_names = auto_build_names + manual_build_names %>
 
 resource_types: #######################################################################################################
@@ -70,7 +70,7 @@ resources: #####################################################################
       private_key: {{public-buildpacks-ci-robots-private-key}}
 <% end %>
 
-<% %w(go nodejs ruby php staticfile).each do |language| %>
+<% %w(go nodejs php staticfile).each do |language| %>
   - name: <%= language %>-buildpack
     type: git
     source:
@@ -117,7 +117,7 @@ groups: ########################################################################
 <% auto_build_names.each do |auto_dep| %>
     - build-<%= auto_dep %>
 <% end %>
-<% {go: ["godep", "glide"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"], ruby: ["node","yarn"]}.each do |buildpack, dependencies| %>
+<% {go: ["godep", "glide"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"]}.each do |buildpack, dependencies| %>
   <% dependencies.each do |dependency| %>
     - update-<%= dependency %>-in-<%= buildpack %>-buildpack
   <% end %>
@@ -126,7 +126,7 @@ groups: ########################################################################
   - name: manual-builds
     jobs:
     - binary-builder-specs
-<% %w(go php php7 ruby jruby bundler python httpd).each do |dependency| %>
+<% %w(go php php7 bundler python httpd).each do |dependency| %>
     - build-<%= dependency %>
 <% end %>
 
@@ -143,7 +143,7 @@ jobs: ##########################################################################
         - get: binary-builder
           trigger: true
       - do:
-        <% integration_spec_names = %w(bundler glide go godep httpd jruby nginx nodejs php5 php7 php71 php5_with_geolitedb php7_with_geolitedb python ruby url_output yaml_flag) %>
+        <% integration_spec_names = %w(bundler glide go godep httpd nginx nodejs php5 php7 php71 php5_with_geolitedb php7_with_geolitedb python url_output yaml_flag) %>
         - task: all-expected-integration-specs-will-run
           file: buildpacks-ci/tasks/check-for-binary-builder-integration-spec-presence/task.yml
           params:
@@ -170,7 +170,7 @@ jobs: ##########################################################################
           attempts: 5
         <% end %>
 
-<% %w(go php php7 ruby jruby bundler python httpd).each do |dependency| %>
+<% %w(go php php7 bundler python httpd).each do |dependency| %>
   - name: build-<%= dependency %>
     serial: true
     public: true
@@ -261,7 +261,7 @@ jobs: ##########################################################################
             rebase: true
 <% end %>
 
-<% {go: ["godep", "glide"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"], ruby: ["node","yarn"]}.each do |buildpack, dependencies| %>
+<% {go: ["godep", "glide"], staticfile: ["nginx"], php: ["nginx", "composer"], nodejs: ["node", "yarn"]}.each do |buildpack, dependencies| %>
   <% dependencies.each do |dependency| %>
   - name: update-<%= dependency %>-in-<%= buildpack %>-buildpack
     serial: true
