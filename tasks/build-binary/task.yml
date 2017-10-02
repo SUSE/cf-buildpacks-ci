@@ -12,6 +12,7 @@ inputs:
 outputs:
   - name: binary-builder-artifacts
   - name: builds-yaml-artifacts
+  - name: source-artifacts
 run:
   path: bash
   args:
