@@ -26,6 +26,3 @@ pushd $PROJECT/$package/
 ln -s ../../source-artifacts/$package_name/* .
 osc addremove
 osc ci -m "Upload sources from latest build"
-
-# Trigger legaldb
-curl -X POST http://legaldb.suse.de/packages -d api=https://api.opensuse.org/ -d project=$PROJECT -d package=$package
