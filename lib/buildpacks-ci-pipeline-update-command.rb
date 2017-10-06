@@ -18,6 +18,8 @@ class BuildpacksCIPipelineUpdateCommand
     return if options.has_key?(:include) && !pipeline_name.include?(text_to_include)
     return if options.has_key?(:exclude) && pipeline_name.include?(text_to_exclude)
 
+    stack_config = options[:stack]
+
     puts "   #{pipeline_name} pipeline"
 
     pipeline_specific_config = ""
@@ -29,6 +31,7 @@ class BuildpacksCIPipelineUpdateCommand
       --config=<(#{config_generation_command}) \
       --load-vars-from=<(gpg -d --no-tty #{secrets_file} 2> /dev/null; cat secrets-map.yaml) \
       --load-vars-from=public-config.yml \
+      --load-vars-from=#{stack_config}-stack-config.yaml \
     #{pipeline_specific_config}
     "}
 
