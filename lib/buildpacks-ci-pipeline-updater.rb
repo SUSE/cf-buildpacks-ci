@@ -100,6 +100,10 @@ class BuildpacksCIPipelineUpdater
       opts.on("--template=TEMPLATE", "-tTEMPLATE", "Only update pipelines from the specified template") do |template_string|
         specified_options[:template] = template_string
       end
+
+      opts.on("--stack=STACK", "-sSTACK", "Use the specified stack config") do |stack_string|
+        specified_options[:stack] = stack_string
+      end
     end
     opt_parser.parse!(args)
     specified_options
