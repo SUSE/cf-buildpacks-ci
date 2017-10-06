@@ -1,0 +1,7 @@
+public-buildpacks-ci-robots-branch: opensuse
+docker-stack-repository: splatform/rootfs-opensuse42
+buildpacks-docker-username: *docker-username
+buildpacks-docker-password: *docker-password
+
+buildpacks-binaries-s3-bucket: cf-opensusefs2
+buildpack-dependencies-host-domain: cf-opensusefs2.s3.amazonaws.com
