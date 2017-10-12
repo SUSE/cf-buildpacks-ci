@@ -190,6 +190,8 @@ jobs: ##########################################################################
         - get: built-yaml
           resource: <%= dependency %>-built-output
         - get: buildpacks-bucket-<%= dependency %>
+        - get: docker-stack-rootfs
+          trigger: true
       - do:
         - task: build-binary
           file: buildpacks-ci/tasks/build-binary/task.yml
@@ -252,6 +254,8 @@ jobs: ##########################################################################
           passed: [binary-builder-specs]
         - get: buildpacks-ci
         - get: buildpacks-bucket-<%= dependency %>
+        - get: docker-stack-rootfs
+          trigger: true
       - do:
         - task: build-binary
           file: buildpacks-ci/tasks/build-binary/task.yml
