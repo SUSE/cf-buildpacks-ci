@@ -298,6 +298,7 @@ jobs: ##########################################################################
         - task: update-dependency-in-manifests
           file: buildpacks-ci/tasks/update-dependency-in-buildpack/task.yml
           params:
+            STACK_NAME: {{stack-name}}
             BUILDPACK_NAME: <%= buildpack %>
             DEPENDENCY: <%= dependency %>
             TRACKER_PROJECT_ID: {{cf-buildpacks-public-tracker-id}}

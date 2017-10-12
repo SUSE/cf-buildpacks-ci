@@ -27,7 +27,7 @@ class BuildpackDependencyUpdater::Dotnet < BuildpackDependencyUpdater
       "version" => dependency_version,
       "uri" => uri,
       "md5" => md5,
-      "cf_stacks" => ["opensuse42"]
+      "cf_stacks" => [stack_name]
     }
     buildpack_manifest["dependencies"] << dependency_hash
   end

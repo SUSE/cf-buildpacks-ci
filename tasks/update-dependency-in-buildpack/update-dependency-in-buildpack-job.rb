@@ -15,13 +15,14 @@ class UpdateDependencyInBuildpackJob
   def update_buildpack
     dependency = ENV.fetch('DEPENDENCY')
     buildpack_name = ENV.fetch('BUILDPACK_NAME')
+    stack_name = ENV.fetch('STACK_NAME')
     buildpack_dir = File.expand_path(File.join(buildpacks_ci_dir, '..', "buildpack-input"))
 
-    buildpack_updater = BuildpackDependencyUpdater.create(dependency, buildpack_name, buildpack_dir, binary_built_out_dir)
+    buildpack_updater = BuildpackDependencyUpdater.create(dependency, stack_name, buildpack_name, buildpack_dir, binary_built_out_dir)
 
     version = buildpack_updater.dependency_version
 
-    puts "Updating manifest with #{dependency} #{version}..."
+    puts "Updating manifest for #{stack_name} stack with #{dependency} #{version}..."
     buildpack_updater.run!
     removed_versions = buildpack_updater.removed_versions
     return buildpack_dir, dependency, version, removed_versions

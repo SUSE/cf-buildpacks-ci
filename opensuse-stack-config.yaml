@@ -5,3 +5,5 @@ buildpacks-docker-password: *docker-password
 
 buildpacks-binaries-s3-bucket: cf-opensusefs2
 buildpack-dependencies-host-domain: cf-opensusefs2.s3.amazonaws.com
+
+stack-name: opensuse42
