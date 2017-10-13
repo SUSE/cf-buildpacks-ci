@@ -27,7 +27,7 @@ resources: #####################################################################
     type: git
     source:
       uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
-      branch: master
+      branch: {{public-buildpacks-ci-robots-branch}}
       paths: [ binary-builds/* ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
 
@@ -36,7 +36,7 @@ resources: #####################################################################
     type: git
     source:
       uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
-      branch: master
+      branch: {{public-buildpacks-ci-robots-branch}}
       paths: [ binary-builds/<%= dep %>-builds.yml ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
 <% end %>
@@ -47,7 +47,7 @@ resources: #####################################################################
     type: git
     source:
       uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
-      branch: master
+      branch: {{public-buildpacks-ci-robots-branch}}
       paths: [ binary-built-output/<%= dep %>-built.yml ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
 <% end %>
@@ -57,7 +57,7 @@ resources: #####################################################################
     type: git
     source:
       uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
-      branch: master
+      branch: {{public-buildpacks-ci-robots-branch}}
       paths: [ binary-builds/<%= auto_dep %>-builds.yml ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
 
@@ -65,7 +65,7 @@ resources: #####################################################################
     type: git
     source:
       uri: git@github.com:SUSE/cf-public-buildpacks-ci-robots
-      branch: master
+      branch: {{public-buildpacks-ci-robots-branch}}
       paths: [ new-release-notifications/<%= auto_dep %>-new.yml ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
 <% end %>
@@ -84,13 +84,15 @@ resources: #####################################################################
 
  ## Docker Images ##
 
-  - name: docker-opensuse42-rootfs
+  - name: docker-stack-rootfs
     type: docker-image
     source:
-      repository: splatform/rootfs-opensuse42
+      repository: {{docker-stack-repository}}
       username: {{buildpacks-docker-username}}
       password: {{buildpacks-docker-password}}
       email: cf-ci-bot@suse.de
+      insecure_registries:
+      - staging.registry.howdoi.website:443
 
 <% dep_build_names.each do |dep| %>
   - name: buildpacks-bucket-<%= dep %>
@@ -138,7 +140,7 @@ jobs: ##########################################################################
     plan:
       - aggregate:
         - get: buildpacks-ci
-        - get: docker-opensuse42-rootfs
+        - get: docker-stack-rootfs
           trigger: true
         - get: binary-builder
           trigger: true
@@ -150,11 +152,13 @@ jobs: ##########################################################################
             SPEC_NAMES: <%= integration_spec_names.join(',') %>
         - task: all-unit-tests
           file: buildpacks-ci/tasks/run-binary-builder-unit-specs/task.yml
+          image: docker-stack-rootfs
           params:
             RUBYGEM_MIRROR: {{rubygem-mirror}}
         <% integration_spec_names.each do |spec_name| %>
         - task: integration-<%= spec_name %>
           file: buildpacks-ci/tasks/run-binary-builder-integration-specs/task.yml
+          image: docker-stack-rootfs
           params:
             SPEC_TO_RUN: <%= spec_name %>
             RUBYGEM_MIRROR: {{rubygem-mirror}}
@@ -186,9 +190,12 @@ jobs: ##########################################################################
         - get: built-yaml
           resource: <%= dependency %>-built-output
         - get: buildpacks-bucket-<%= dependency %>
+        - get: docker-stack-rootfs
+          trigger: true
       - do:
         - task: build-binary
           file: buildpacks-ci/tasks/build-binary/task.yml
+          image: docker-stack-rootfs
           params:
             DEPENDENCY: <%= dependency %>
             GIT_SSH_KEY: {{public-buildpacks-ci-robots-private-key}}
@@ -247,9 +254,12 @@ jobs: ##########################################################################
           passed: [binary-builder-specs]
         - get: buildpacks-ci
         - get: buildpacks-bucket-<%= dependency %>
+        - get: docker-stack-rootfs
+          trigger: true
       - do:
         - task: build-binary
           file: buildpacks-ci/tasks/build-binary/task.yml
+          image: docker-stack-rootfs
           params:
             GIT_SSH_KEY: {{public-buildpacks-ci-robots-private-key}}
             DEPENDENCY: <%= dependency %>
@@ -292,6 +302,7 @@ jobs: ##########################################################################
         - task: update-dependency-in-manifests
           file: buildpacks-ci/tasks/update-dependency-in-buildpack/task.yml
           params:
+            STACK_NAME: {{stack-name}}
             BUILDPACK_NAME: <%= buildpack %>
             DEPENDENCY: <%= dependency %>
             TRACKER_PROJECT_ID: {{cf-buildpacks-public-tracker-id}}

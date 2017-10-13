@@ -1,0 +1,9 @@
+public-buildpacks-ci-robots-branch: sle12
+docker-stack-repository: staging.registry.howdoi.website:443/splatform/rootfs-sles
+buildpacks-docker-username: *docker-internal-username
+buildpacks-docker-password: *docker-internal-password
+
+buildpacks-binaries-s3-bucket: cf-sle12
+buildpack-dependencies-host-domain: cf-sle12.s3.amazonaws.com
+
+stack-name: sle12

@@ -30,13 +30,13 @@ class BuildpackDependencyUpdater
     const_get(subclass).new(dependency, *args)
   end
 
-  def initialize(dependency, buildpack, buildpack_dir, binary_built_dir)
+  def initialize(dependency, stack_name, buildpack, buildpack_dir, binary_built_dir)
     @dependency = dependency
     @buildpack = buildpack
     @buildpack_dir = buildpack_dir
     @binary_built_dir = binary_built_dir
     @removed_versions = []
-    @stack_name = 'opensuse42'
+    @stack_name = stack_name
   end
 
   def run!
