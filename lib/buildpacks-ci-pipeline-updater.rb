@@ -104,6 +104,11 @@ class BuildpacksCIPipelineUpdater
         specified_options[:stack] = stack_string
       end
     end
+
+    if specified_options[:stack].nil?
+         raise "Missing --stack option"
+    end
+
     opt_parser.parse!(args)
     specified_options
   end
