@@ -6,6 +6,8 @@ class BuildpacksCIPipelineUpdateCommand
     buildpacks_configuration = BuildpacksCIConfiguration.new
 
     pipeline_prefix = ENV.fetch('PIPELINE_PREFIX', '')
+    pipeline_prefix += "#{options[:stack]}-" unless options[:stack].nil?
+
     secrets_file = ENV.fetch('CONCOURSE_SECRETS_FILE', nil)
 
     if secrets_file.nil?
