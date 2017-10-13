@@ -17,6 +17,10 @@ class BuildpacksCIPipelineUpdater
     Dir['pipelines/*.yml'].each do |filename|
       pipeline_name = File.basename(filename, '.yml')
 
+      if pipeline_name == 'binary-builder' and options[:stack].nil?
+         raise "The binary-builder pipeline requires the --stack option"
+      end
+
       BuildpacksCIPipelineUpdateCommand.new.run!(
         concourse_target_name: concourse_target_name,
         pipeline_name: pipeline_name,
@@ -103,10 +107,6 @@ class BuildpacksCIPipelineUpdater
       opts.on("--stack=STACK", "-sSTACK", "Use the specified stack config") do |stack_string|
         specified_options[:stack] = stack_string
       end
-    end
-
-    if specified_options[:stack].nil?
-         raise "Missing --stack option"
     end
 
     opt_parser.parse!(args)
