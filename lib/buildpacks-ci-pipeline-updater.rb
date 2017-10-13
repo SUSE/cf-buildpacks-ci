@@ -17,10 +17,6 @@ class BuildpacksCIPipelineUpdater
     Dir['pipelines/*.yml'].each do |filename|
       pipeline_name = File.basename(filename, '.yml')
 
-      if pipeline_name == 'binary-builder' and options[:stack].nil?
-         raise "The binary-builder pipeline requires the --stack option"
-      end
-
       BuildpacksCIPipelineUpdateCommand.new.run!(
         concourse_target_name: concourse_target_name,
         pipeline_name: pipeline_name,
