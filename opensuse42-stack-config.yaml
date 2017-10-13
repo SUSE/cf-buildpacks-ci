@@ -3,7 +3,7 @@ docker-stack-repository: splatform/rootfs-opensuse42
 buildpacks-docker-username: *docker-username
 buildpacks-docker-password: *docker-password
 
-buildpacks-assets-s3-bucket: cf-opensusefs2
+binaries-s3-bucket: cf-opensusefs2
 buildpack-dependencies-host-domain: cf-opensusefs2.s3.amazonaws.com
 
 stack-name: opensuse42
