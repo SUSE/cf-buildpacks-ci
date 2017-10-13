@@ -114,7 +114,7 @@ resources: #####################################################################
   - name: stack-s3
     type: s3
     source:
-      bucket: {{buildpacks-binaries-s3-bucket}}
+      bucket: {{buildpacks-s3-bucket}}
       regexp: rootfs-nc/cflinuxfs2_nc-(.*).tar.gz
       access_key_id: {{pivotal-buildpacks-s3-access-key}}
       secret_access_key: {{pivotal-buildpacks-s3-secret-key}}
@@ -122,7 +122,7 @@ resources: #####################################################################
   - name: receipt-s3
     type: s3
     source:
-      bucket: {{buildpacks-binaries-s3-bucket}}
+      bucket: {{buildpacks-s3-bucket}}
       regexp: rootfs-nc/cflinuxfs2_receipt_nc-(.*)
       access_key_id: {{pivotal-buildpacks-s3-access-key}}
       secret_access_key: {{pivotal-buildpacks-s3-secret-key}}
@@ -130,7 +130,7 @@ resources: #####################################################################
   - name: bosh-release-s3
     type: s3
     source:
-      bucket: {{buildpacks-binaries-s3-bucket}}
+      bucket: {{buildpacks-s3-bucket}}
       regexp: cflinuxfs2-nc/cflinuxfs2-nc-(.*).tgz
       access_key_id: {{pivotal-buildpacks-s3-access-key}}
       secret_access_key: {{pivotal-buildpacks-s3-secret-key}}
@@ -200,7 +200,7 @@ resources: #####################################################################
   - name: version
     type: semver
     source:
-      bucket: {{buildpacks-binaries-s3-bucket}}
+      bucket: {{buildpacks-s3-bucket}}
       key: versions/stack-nc
       initial_version: 0.1.0-rc.1
       access_key_id: {{pivotal-buildpacks-s3-access-key}}

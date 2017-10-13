@@ -10,6 +10,7 @@ binary-builder-git-uri: https://github.com/SUSE/cf-binary-builder
 cf-release-git-uri: https://github.com/cloudfoundry/cf-release
 
 buildpacks-github-org: SUSE
+buildpacks-s3-bucket: cf-opensusefs2
 bosh-lite-domain-name: cf-app.com
 
 buildpacks-ci-pipeline-uri: http://concourse.suse.de/teams/main/pipelines/cf-buildpacks-ci

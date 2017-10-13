@@ -20,6 +20,10 @@ class BuildpacksCIPipelineUpdateCommand
     return if options.has_key?(:include) && !pipeline_name.include?(text_to_include)
     return if options.has_key?(:exclude) && pipeline_name.include?(text_to_exclude)
 
+    if pipeline_name == 'binary-builder' and options[:stack].nil?
+       raise "The binary-builder pipeline requires the --stack option"
+    end
+
     stack_command = ''
     stack_command = "cat #{options[:stack]}-stack-config.yaml" unless options[:stack].nil?
 

@@ -147,7 +147,7 @@ resources: #####################################################################
   - name: pivotal-buildpack
     type: s3
     source:
-      bucket: {{buildpacks-binaries-s3-bucket}}
+      bucket: {{buildpacks-s3-bucket}}
       regexp: buildpack-release-candidates/<%= language%>/<%= language %>_buildpack-v(.*).zip
       access_key_id: {{pivotal-buildpacks-s3-access-key}}
       secret_access_key: {{pivotal-buildpacks-s3-secret-key}}
@@ -156,7 +156,7 @@ resources: #####################################################################
   - name: pivotal-buildpack-cached
     type: s3
     source:
-      bucket: {{buildpacks-binaries-s3-bucket}}
+      bucket: {{buildpacks-s3-bucket}}
       regexp: buildpack-release-candidates/<%= language%>/<%= language %>_buildpack-cached-v(.*).zip
       access_key_id: {{pivotal-buildpacks-s3-access-key}}
       secret_access_key: {{pivotal-buildpacks-s3-secret-key}}
