@@ -1,4 +1,4 @@
-public-buildpacks-ci-robots-branch: opensuse
+public-buildpacks-ci-robots-branch: opensuse42
 docker-stack-repository: splatform/rootfs-opensuse42
 buildpacks-docker-username: *docker-username
 buildpacks-docker-password: *docker-password
