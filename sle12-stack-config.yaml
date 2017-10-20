@@ -1,5 +1,5 @@
 public-buildpacks-ci-robots-branch: sle12
-docker-stack-repository: staging.registry.howdoi.website:443/splatform/rootfs-sles
+docker-stack-repository: staging.registry.howdoi.website:443/splatform/rootfs-sle12
 buildpacks-docker-username: *docker-internal-username
 buildpacks-docker-password: *docker-internal-password
 
