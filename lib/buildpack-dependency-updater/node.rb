@@ -31,7 +31,7 @@ class BuildpackDependencyUpdater::Node < BuildpackDependencyUpdater
     new_dependencies = buildpack_manifest["dependencies"].clone
 
     if buildpack == "nodejs" || (buildpack == "ruby" && %w(4 6).include?(major_version)) || (buildpack == 'dotnet-core' && major_version == '6')
-      new_dependencies = buildpack_manifest["dependencies"].delete_if { |dep| dep["name"] == dependency && dep["version"] == version_to_delete }
+      new_dependencies = buildpack_manifest["dependencies"].delete_if { |dep| dep["name"] == dependency && dep['cf_stacks'].include?(stack_name) && dep["version"] == version_to_delete }
       dependency_hash = {
         "name" => dependency,
         "version" => dependency_version,
