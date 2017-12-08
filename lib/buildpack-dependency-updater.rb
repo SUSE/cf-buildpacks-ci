@@ -4,7 +4,9 @@ require_relative 'git-client'
 
 class BuildpackDependencyUpdater; end
 
+require_relative 'buildpack-dependency-updater/bundler.rb'
 require_relative 'buildpack-dependency-updater/godep.rb'
+require_relative 'buildpack-dependency-updater/dep.rb'
 require_relative 'buildpack-dependency-updater/glide.rb'
 require_relative 'buildpack-dependency-updater/bower.rb'
 require_relative 'buildpack-dependency-updater/composer.rb'
@@ -65,8 +67,8 @@ class BuildpackDependencyUpdater
     @depencency_version ||= dependency_build_info['version']
   end
 
-  def md5
-    @md5 ||= dependency_build_info['md5']
+  def sha256
+    @sha256 ||= dependency_build_info['sha256']
   end
 
   def uri
@@ -96,8 +98,8 @@ class BuildpackDependencyUpdater
       dep['name'] == dependency &&
       dep['version'] == dependency_version &&
       dep['uri'] == uri &&
-      dep['md5'] == md5 &&
-      dep['cf_stacks'].include?(stack_name)
+      dep['cf_stacks'].include?(stack_name) &&
+      dep['sha256'] == sha256
     end.count > 0
   end
 
@@ -122,7 +124,7 @@ class BuildpackDependencyUpdater
       "name"      => dependency,
       "version"   => dependency_version,
       "uri"       => uri,
-      "md5"       => md5,
+      "sha256"    => sha256,
       "cf_stacks" => [stack_name]
     }
     buildpack_manifest["dependencies"] << dependency_hash

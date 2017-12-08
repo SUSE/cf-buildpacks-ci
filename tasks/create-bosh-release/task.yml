@@ -6,7 +6,7 @@ image_resource:
     repository: splatform/cf-ci-buildpacks
 inputs:
   - name: buildpacks-ci
-  - name: blob
+  - name: buildpack-zip
   - name: version
   - name: release
 outputs:

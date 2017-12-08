@@ -1,22 +1,21 @@
 ---
 name: concourse
-director_uuid: REPLACE-IN-JUMPBOX-BEFORE-DEPLOY
+director_uuid: <%= concourse_gcp_bosh_director_uuid %>
 releases:
 - name: concourse
-  version: 2.7.0
-  url: https://bosh.io/d/github.com/concourse/concourse?v=2.7.0
-  sha1: 9b452d456f7ea69d7e1cf232b856d2d820fc0ec3
+  version: 3.6.0
+  url: https://bosh.io/d/github.com/concourse/concourse?v=3.6.0
+  sha1: 1257bdcd3181ab0a669bc9e34cd87aff584f007b
 - name: garden-runc
-  version: 1.2.0
-  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.2.0
-  sha1: 37d46f41d187dbd90e1bf0748fa5c1fb60870bff
-
-tls_key: &tls_key |
-  <%= concourse_buildpacks_gcp_key.split("\n").join("\n  ") %>
-tls_cert: &tls_cert |
-  <%= concourse_buildpacks_gcp_crt.gsub("\n", "\n  ").chomp  %>
-  <%= concourse_buildpacks_gcp_chain.gsub("\n", "\n  ").chomp %>
-
+  version: 1.9.0
+  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.9.0
+  sha1: 77bfe8bdb2c3daec5b40f5116a6216badabd196c
+- name: windows-tools-release
+  version: latest
+- name: concourse-windows-worker
+  version: 3.6.0
+  url: https://bosh.io/d/github.com/pivotal-cf-experimental/concourse-windows-worker-release?v=3.6.0
+  sha1: 55c86935e36e0cfcd2ad8ededce0d93d87596ba0
 instance_groups:
 - name: web
   instances: 1
@@ -39,10 +38,10 @@ instance_groups:
       external_url: https://buildpacks.ci.cf-app.com
       publicly_viewable: true
       basic_auth_username: buildpacks
-      basic_auth_password: "<%= concourse_basic_auth_password %>"
+      basic_auth_password: <%= concourse_basic_auth_password %>
       github_auth:
-        client_id: "<%= gcp_concourse_github_auth_client_id %>"
-        client_secret: "<%= gcp_concourse_github_auth_client_secret %>"
+        client_id: <%= gcp_concourse_github_auth_client_id %>
+        client_secret: <%= gcp_concourse_github_auth_client_secret %>
         authorize:
         - organization: cloudfoundry
           teams:
@@ -59,14 +58,23 @@ instance_groups:
         role:
           name: <%= gcp_concourse_db_admin_user %>
           password: <%= gcp_concourse_db_admin_password %>
-        address: <%= gcp_concourse_db_address %>
+        host: <%= gcp_concourse_db_host %>
+        sslmode: disable
       postgresql_database: <%= gcp_concourse_db_name %>
-      tls_cert: *tls_cert
-      tls_key: *tls_key
+      tls_key: |
+        <%= concourse_buildpacks_gcp_key.split("\n").join("\n        ") %>
+      tls_cert: |
+        <%= concourse_buildpacks_gcp_crt.gsub("\n", "\n        ").chomp  %>
+        <%= concourse_buildpacks_gcp_chain.gsub("\n", "\n        ").chomp %>
       tls_bind_port: 443
   - name: tsa
     release: concourse
-    properties: {}
+    properties:
+      authorized_keys:
+        - <%= gcp_concourse_windows_worker_public_key %>
+      host_public_key: <%= gcp_concourse_tsa_public_key %>
+      host_key: |
+        <%= gcp_concourse_tsa_private_key.split("\n").join("\n        ") %>
 - name: worker
   instances: 12
   vm_type: worker
@@ -89,9 +97,31 @@ instance_groups:
         listen_network: tcp
         listen_address: 0.0.0.0:7777
         network_mtu: 1432
+- name: windows2016_worker
+  instances: 1
+  vm_type: worker
+  azs:
+  - z1
+  stemcell: windows2016
+  networks:
+  - name: public
+  jobs:
+  - name: golang-windows
+    release: windows-tools-release
+  - name: git
+    release: windows-tools-release
+  - name: concourse_windows
+    release: concourse-windows-worker
+    properties:
+      concourse_windows:
+        tsa_host: 10.150.0.2
+        tsa_public_key: <%= gcp_concourse_tsa_public_key %>
+        tsa_worker_private_key: |
+          <%= gcp_concourse_windows_worker_private_key.split("\n").join("\n          ") %>
+
 update:
-  canaries: 1
-  max_in_flight: 3
+  canaries: 0
+  max_in_flight: 30
   serial: false
   canary_watch_time: 1000-120000
   update_watch_time: 1000-120000
@@ -99,3 +129,7 @@ stemcells:
 - alias: trusty
   os: ubuntu-trusty
   version: latest
+- alias: windows2016
+  os: windows2016
+  version: latest
+

@@ -9,14 +9,10 @@ set -x
 export GOPATH=$PWD/buildpack
 export GOBIN=/usr/local/bin
 
-if [ "$LANGUAGE" = "go" ]; then
-  update_dir="src/golang"
-elif [ "$LANGUAGE" = "staticfile" ]; then
-  update_dir="src/staticfile"
-elif [ "$LANGUAGE" = "nodejs" ]; then
-  update_dir="src/nodejs"
-else
+if [ "$LANGUAGE" = "multi" ]; then
   update_dir="src/compile"
+else
+  update_dir="src/$LANGUAGE"
 fi
 
 pushd buildpack
@@ -32,7 +28,8 @@ pushd buildpack
 
     if [ -f Gopkg.toml ]; then
       go get github.com/golang/dep/cmd/dep
-      dep ensure --update
+      dep ensure
+      dep ensure -update
     else
       go get github.com/FiloSottile/gvt
       gvt update github.com/cloudfoundry/libbuildpack
@@ -44,7 +41,7 @@ pushd buildpack
     [ -d supply ] && (cd supply && (go generate || true))
     [ -d finalize ] && (cd finalize && (go generate || true))
 
-    ginkgo -r -skipPackage=integration
+    ginkgo -r -skipPackage=integration,brats
   popd
 
   git add "$update_dir"

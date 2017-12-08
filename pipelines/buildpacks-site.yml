@@ -1,0 +1,58 @@
+---
+resource_types:
+  - name: cron
+    type: docker-image
+    source:
+      repository: cfbuildpacks/cron-resource
+resources:
+  - name: daily
+    type: cron
+    source:
+      expression: "43 7 * * *"
+      location: {{current-timezone}}
+  - name: buildpacks-ci
+    type: git
+    source:
+      uri: {{buildpacks-ci-git-uri-public}}
+      branch: {{buildpacks-ci-git-uri-public-branch}}
+  - name: buildpacks-site
+    type: git
+    source:
+      uri: https://github.com/cloudfoundry-incubator/buildpacks-site
+      branch: master
+  - name: buildpacks-bucket
+    type: s3
+    source:
+      bucket: {{buildpacks-binaries-s3-bucket}}
+      access_key_id: {{pivotal-buildpacks-s3-access-key}}
+      secret_access_key: {{pivotal-buildpacks-s3-secret-key}}
+      versioned_file: static/buildpacks.json
+jobs:
+  - name: build-and-publish
+    serial: true
+    public: true
+    plan:
+      - get: buildpacks-ci
+      - get: buildpacks-site
+        trigger: true
+      - task: build-and-publish
+        file: buildpacks-ci/tasks/build-and-publish/task.yml
+        params:
+          AWS_ACCESS_KEY_ID: {{pivotal-buildpacks-s3-access-key}}
+          AWS_SECRET_ACCESS_KEY: {{pivotal-buildpacks-s3-secret-key}}
+          AWS_BUCKET: pivotal-buildpacks
+  - name: generate-buildpacks-json
+    serial: true
+    public: true
+    plan:
+      - get: daily
+        trigger: true
+      - get: buildpacks-ci
+      - get: buildpacks-site
+      - task: build-and-publish
+        file: buildpacks-ci/tasks/generate-buildpacks-json/task.yml
+        params:
+          ACCESS_TOKEN: {{buildpacks-github-token}}
+      - put: buildpacks-bucket
+        params:
+          file: buildpacks-json/buildpacks.json

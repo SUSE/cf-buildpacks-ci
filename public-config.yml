@@ -19,6 +19,7 @@ public-buildpacks-ci-robots-git-uri-public: https://github.com/SUSE/cf-public-bu
 buildpacks-ci-git-uri: git@github.com:SUSE/cf-buildpacks-ci.git
 buildpacks-ci-git-uri-public-develop-branch: develop
 buildpacks-ci-git-uri-public-branch: master
+buildpackapplifecycle-git-branch: develop
 
 buildpacks-docker-ci-repo: splatform/cf-ci-buildpacks
 buildpacks-docker-user-email: cf-ci-bot@suse.de

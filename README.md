@@ -148,21 +148,14 @@ BOSH releases are used in the assembly of [`cf-release`](https://github.com/clou
 
 These buildpacks are possible candidates for promotion, or experimental architecture explorations.
 
-* [multi-buildpack](https://github.com/cloudfoundry-incubator/multi-buildpack)
-* [hwc-buildpack](https://github.com/cloudfoundry-incubator/hwc-buildpack)
-* [hwc-buildpack-release](https://github.com/cloudfoundry-incubator/hwc-buildpack-release)
+* [multi-buildpack](https://github.com/cloudfoundry/multi-buildpack)
+* [hwc-buildpack](https://github.com/cloudfoundry/hwc-buildpack)
+* [hwc-buildpack-release](https://github.com/cloudfoundry/hwc-buildpack-release)
 
 ### Tools
 
 * [concourse-filter](https://github.com/pivotal-cf-experimental/concourse-filter) Redacts credentials from Concourse logs
 * [new_version_resource](https://github.com/pivotal-cf-experimental/new_version_resource) Concourse resource to track dependency versions by scraping webpages
-
-## Repos that are retired, deprecated or abandoned
-
-You should not follow or rely on these repos. They may be moved or deleted without warning. They do not contain code under active development.
-
-* [buildpack-releases](https://github.com/cloudfoundry-attic/buildpack-releases), will be progressively replaced by individual buildpack release repos.
-* [cflinuxfs2-release-deprecated](https://github.com/pivotal-cf-experimental/cflinuxfs2-release-deprecated), has been replaced by `cflinuxfs2-release`
 
 ## Private Repos
 
@@ -172,3 +165,4 @@ Some repositories are private for historical or security reasons. We list them f
 * [buildpacks-ci-robots](https://github.com/pivotal-cf/buildpacks-ci-robots) See repository README.
 * [cflinuxfs2-nc](https://github.com/pivotal-cf/cflinuxfs2-nc) See repository README.
 * [cflinuxfs2-nc-release](https://github.com/pivotal-cf/cflinuxfs2-nc-release) See repository README.
+
