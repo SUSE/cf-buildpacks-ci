@@ -224,7 +224,6 @@ jobs: ##########################################################################
           resource: <%= dependency %>-builds
           trigger: true
         - get: binary-builder
-          passed: [binary-builder-specs]
         - get: buildpacks-ci
         - get: built-yaml
           resource: <%= dependency %>-built-output
@@ -289,7 +288,6 @@ jobs: ##########################################################################
           version: every
           trigger: true
         - get: binary-builder
-          passed: [binary-builder-specs]
         - get: buildpacks-ci
         - get: buildpacks-bucket-<%= dependency %>
         - get: docker-stack-rootfs
