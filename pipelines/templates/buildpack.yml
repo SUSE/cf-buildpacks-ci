@@ -120,12 +120,8 @@ jobs: ##########################################################################
       - get: buildpack
         resource: buildpack-develop
         trigger: true
-      - task: load-modules
-        file: buildpacks-ci/tasks/populate-php-modules-in-manifest/task.yml
-      - put: buildpack-develop
-        params:
-          repository: updated-buildpack
-          rebase: true
+      - task: check-modules
+        file: buildpacks-ci/tasks/check-php-modules-in-manifest/task.yml
   <% end %>
   - name: detect-new-version-and-upload-artifacts
     serial: true
