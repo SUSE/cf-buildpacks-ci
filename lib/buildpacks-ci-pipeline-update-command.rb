@@ -47,7 +47,7 @@ class BuildpacksCIPipelineUpdateCommand
       set-pipeline \
       --pipeline=#{pipeline_prefix}#{pipeline_name} \
       --config=<(#{config_generation_command}) \
-      --load-vars-from=<(gpg -d --no-tty #{secrets_file} 2> /dev/null; cat secrets-map.yaml; #{stack_command}) \
+      --load-vars-from=<(gpg -d --no-tty --batch --quiet #{secrets_file} ; cat secrets-map.yaml; #{stack_command}) \
       --load-vars-from=public-config.yml \
     #{pipeline_specific_config}
     "}
